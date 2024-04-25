@@ -5,8 +5,11 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
 const scene = new THREE.Scene();
 
-const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.01, 10000000);
-camera.position.set(0, 0, 10);
+// const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.01, 10000000);
+// camera.position.set(0, 0, 10);
+var camera=new THREE.OrthographicCamera(width/12, -width/12, height/12, -height/12, 0.1, 1000);
+camera.position.set(0, 0, 200); //设置相机位置
+camera.lookAt(scene.position); //设置相机方向(指向的场景对象)
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
