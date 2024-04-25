@@ -1,6 +1,6 @@
 //import * as PCL from "pcl";
 //import PointCloudViewer from "pcl.js/PointCloudViewer";
-import * as PCL from "https://cdn.jsdelivr.net/npm/pcl.js@1.16.0/dist/pcl.esm.js";
+import * as PCL from "https://gcore.jsdelivr.net/npm/pcl.js@1.16.0/dist/pcl.esm.js";
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { PCDLoader } from 'three/addons/loaders/PCDLoader.js';
@@ -51,7 +51,7 @@ async function main() {
     );
 
     await PCL.init({
-        url: `https://cdn.jsdelivr.net/npm/pcl.js/dist/pcl-core.wasm`
+        url: `https://gcore.jsdelivr.net/npm/pcl.js/dist/pcl-core.wasm`
     });
 
     cloud = PCL.loadPCDData(cloudBuffer, PCL.PointXYZ);
