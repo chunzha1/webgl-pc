@@ -61,7 +61,7 @@ async function main() {
     );
 
     await PCL.init({
-        url: `https://cdn.jsdelivr.net/npm/pcl.js/dist/pcl-core.wasm`
+        url: `https://gcore.jsdelivr.net/npm/pcl.js/dist/pcl-core.wasm`
     });
 
     cloud = PCL.loadPCDData(cloudBuffer, PCL.PointXYZ);
