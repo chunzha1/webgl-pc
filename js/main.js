@@ -5,8 +5,15 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
 const scene = new THREE.Scene();
 
-const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.01, 10000000);
-camera.position.set(0, 0, 10);
+// const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.01, 10000000);
+// camera.position.set(0, 0, 10);
+
+const size = 1;
+const near = 5;
+const far = 50;
+const camera = new THREE.OrthographicCamera( - size, size, size, - size, near, far );
+camera.zoom = 0.2;
+camera.position.set( 0, 10, 20 );
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
