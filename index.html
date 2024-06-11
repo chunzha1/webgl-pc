@@ -8,14 +8,14 @@
     </style>
 </head>
 <body>
-    <script type="module">
-        // 导入Three.js模块
-        import * as THREE from 'https://gcore.jsdelivr.net/npm/three@0.158.0/build/three.module.js';
-        // 导入main.js模块
-        import { init } from './js/main.js';
-
-        // 初始化Three.js场景
-        init();
-    </script>
+ <script type="importmap">
+		{
+		  "imports": {
+			"three": "https://gcore.jsdelivr.net/npm/three@0.158.0/build/three.module.js",
+			"three/addons/": "https://gcore.jsdelivr.net/npm/three@0.158.0/examples/jsm/"
+		  }
+		}
+	  </script>
+	<script type="module" src="js/main.js"> </script>
 </body>
 </html>
