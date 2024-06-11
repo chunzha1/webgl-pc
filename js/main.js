@@ -24,7 +24,7 @@ const loader = new PCDLoader();
 // load a resource
 loader.load(
 	// resource URL
-	'images/pointcloud.pcd',
+	'images/point_cloud.pcd',
 	// called when the resource is loaded
 	function ( points ) {
 
