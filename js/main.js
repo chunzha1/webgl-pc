@@ -1,5 +1,8 @@
 // main.js
-
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { PCDLoader } from 'three/addons/loaders/PCDLoader.js';
+import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 // 创建场景
 const scene = new THREE.Scene();
 
