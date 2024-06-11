@@ -4,50 +4,71 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { PCDLoader } from 'three/addons/loaders/PCDLoader.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 // main.js
+		let camera, scene, renderer;
 
-// 创建场景
-const scene = new THREE.Scene();
+			init();
+			render();
 
-// 创建相机
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 5;
+			function init() {
 
-// 创建渲染器
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.body.appendChild( renderer.domElement );
 
-// 加载PCD文件
-// instantiate a loader
-const loader = new PCDLoader();
+				scene = new THREE.Scene();
 
-// load a resource
-loader.load(
-	// resource URL
-	'images/L1NNSGHA4PB024820R.pcd',
-	// called when the resource is loaded
-	function ( points ) {
+				camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 0.01, 40 );
+				camera.position.set( 0, 0, 1 );
+				scene.add( camera );
 
-		scene.add( points );
+				const controls = new OrbitControls( camera, renderer.domElement );
+				controls.addEventListener( 'change', render ); // use if there is no animation loop
+				controls.minDistance = 0.5;
+				controls.maxDistance = 10;
 
-	},
-	// called when loading is in progresses
-	function ( xhr ) {
+				//scene.add( new THREE.AxesHelper( 1 ) );
 
-		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+				const loader = new PCDLoader();
+				loader.load( 'images/L1NNSGHA4PB024820R.pcd', function ( points ) {
 
-	},
-	// called when loading has errors
-	function ( error ) {
+					points.geometry.center();
+					points.geometry.rotateX( Math.PI );
+					points.name = 'Zaghetto.pcd';
+					scene.add( points );
 
-		console.log( 'An error happened' );
+					//
 
-	}
-);
+					const gui = new GUI();
 
-// 渲染循环
-function animate() {
-    requestAnimationFrame(animate);
-    renderer.render(scene, camera);
-}
-animate();
+					gui.add( points.material, 'size', 0.001, 0.01 ).onChange( render );
+					gui.addColor( points.material, 'color' ).onChange( render );
+					gui.open();
+
+					//
+
+					render();
+
+				} );
+
+				window.addEventListener( 'resize', onWindowResize );
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				render();
+
+			}
+
+			function render() {
+
+				renderer.render( scene, camera );
+
+			}
+
