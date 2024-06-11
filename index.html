@@ -1,14 +1,41 @@
-<!DOCTYPE html>
 <html>
+
 <head>
-    <title>3D Point Cloud Viewer</title>
-    <style>
-        body { margin: 0; }
-        canvas { display: block; }
-    </style>
+	<meta charset="utf-8">
+	<title>PCD visulize</title>
+	<style>
+		body {
+			margin: 0;
+		}
+	</style>
 </head>
+
 <body>
-    <script src="https://threejs.org/build/three.js"></script>
-    <script src="main.js"></script>
+//////////
+<!--     <div class="split">
+       <div id="view1" tabindex="1"></div>
+       <div id="view2" tabindex="2"></div>
+    </div> -->
+//////////	
+	<script type="importmap">
+		{
+		  "imports": {
+			"three": "https://gcore.jsdelivr.net/npm/three@0.158.0/build/three.module.js",
+			"three/addons/": "https://gcore.jsdelivr.net/npm/three@0.158.0/examples/jsm/"
+		  }
+		}
+	  </script>
+
+	<!-- <script type="importmap">
+		{
+		  "imports": {
+			"three": "../../node_modules/three/build/three.module.js",
+			"three/addons/": "../../node_modules/three/examples/jsm/"
+		  }
+		}
+	  </script> -->
+
+	<script type="module" src="js/main.js"> </script>
 </body>
+
 </html>
