@@ -27,7 +27,8 @@ export function init() {
     // 创建点材质
     var material = new THREE.PointsMaterial({
         size: 0.02,
-        sizeAttenuation: true
+        sizeAttenuation: true,
+        color: 0xff0000 // 红色
     });
 
     // 创建点云对象
