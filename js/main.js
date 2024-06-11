@@ -18,7 +18,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // 加载PCD文件
-const loader = new THREE.PCDLoader();
+const loader = new PCDLoader();
 loader.load('pointcloud.pcd', function (pointCloud) {
     scene.add(pointCloud);
 });
