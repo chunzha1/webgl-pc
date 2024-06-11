@@ -1,41 +1,21 @@
+<!DOCTYPE html>
 <html>
-
 <head>
-	<meta charset="utf-8">
-	<title>PCD visulize</title>
-	<style>
-		body {
-			margin: 0;
-		}
-	</style>
+    <title>3D Point Cloud Viewer</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
 </head>
-
 <body>
-//////////
-<!--     <div class="split">
-       <div id="view1" tabindex="1"></div>
-       <div id="view2" tabindex="2"></div>
-    </div> -->
-//////////	
-	<script type="importmap">
-		{
-		  "imports": {
-			"three": "https://gcore.jsdelivr.net/npm/three@0.158.0/build/three.module.js",
-			"three/addons/": "https://gcore.jsdelivr.net/npm/three@0.158.0/examples/jsm/"
-		  }
-		}
-	  </script>
+    <script type="module">
+        // 导入Three.js模块
+        import * as THREE from 'https://gcore.jsdelivr.net/npm/three@0.158.0/build/three.module.js';
+        // 导入main.js模块
+        import { init } from './main.js';
 
-	<!-- <script type="importmap">
-		{
-		  "imports": {
-			"three": "../../node_modules/three/build/three.module.js",
-			"three/addons/": "../../node_modules/three/examples/jsm/"
-		  }
-		}
-	  </script> -->
-
-	<script type="module" src="js/main.js"> </script>
+        // 初始化Three.js场景
+        init();
+    </script>
 </body>
-
 </html>
