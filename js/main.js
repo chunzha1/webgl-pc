@@ -18,10 +18,32 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // 加载PCD文件
+// instantiate a loader
 const loader = new PCDLoader();
-loader.load('pointcloud.pcd', function (pointCloud) {
-    scene.add(pointCloud);
-});
+
+// load a resource
+loader.load(
+	// resource URL
+	'images/pointcloud.pcd',
+	// called when the resource is loaded
+	function ( points ) {
+
+		scene.add( points );
+
+	},
+	// called when loading is in progresses
+	function ( xhr ) {
+
+		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+	},
+	// called when loading has errors
+	function ( error ) {
+
+		console.log( 'An error happened' );
+
+	}
+);
 
 // 渲染循环
 function animate() {
