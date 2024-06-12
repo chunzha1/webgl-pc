@@ -103,6 +103,7 @@ function init() {
         renderer.setClearColor(new THREE.Color(value), 1);
         });
         materialGUI.open(); // 默认展开材质设置的折叠面板
+        
         // 创建清除所有点云的按钮
         const clearAllButton = document.createElement('button');
         clearAllButton.textContent = 'Clear All Point Clouds';
@@ -126,6 +127,7 @@ function clearAllPointClouds() {
             scene.remove(child);
         }
     }
+    render();
 }
 
 function onWindowResize() {
