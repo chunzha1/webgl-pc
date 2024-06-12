@@ -24,7 +24,7 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
 				const controls = new OrbitControls( camera, renderer.domElement );
 				controls.addEventListener( 'change', render ); // use if there is no animation loop
-				controls.minDistance = 0.05;
+				controls.minDistance = 1.5;
 				controls.maxDistance = 10;
 
 				//scene.add( new THREE.AxesHelper( 1 ) );
