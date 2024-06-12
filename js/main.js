@@ -18,11 +18,11 @@ function init() {
         frustumSize * aspect / 2,
         frustumSize / 2,
         frustumSize / -2,
-        0.01,
-        10
+        0.001,  // Set a smaller near clipping plane
+        200     // Increase the far clipping plane
     );
 
-    camera.position.set(0, 0, 1);
+    camera.position.set(0, 0, 10); // Move the camera back to avoid clipping
     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -48,7 +48,7 @@ function init() {
 
         // Add GUI controls for point size and color
         const gui = new GUI();
-        gui.add(points.material, 'size', 0.001, 0.5).onChange(render);
+        gui.add(points.material, 'size', 0.001, 1.5).onChange(render);
         gui.addColor(points.material, 'color').onChange(render);
         gui.open();
 
