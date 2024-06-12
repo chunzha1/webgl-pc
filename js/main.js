@@ -22,7 +22,7 @@ function init() {
         200     // Increase the far clipping plane
     );
 
-    camera.position.set(0, 0, 10); // Move the camera back to avoid clipping
+    camera.position.set(0, 0, -10); // Move the camera back to avoid clipping
     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
