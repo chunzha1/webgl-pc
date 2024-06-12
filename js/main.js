@@ -52,17 +52,17 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
 				
 				// 添加切换到正视投影视角的按钮
-				const switchToOrthographicViewButton = document.createElement('button');
-				switchToOrthographicViewButton.textContent = 'Switch to Orthographic View';
-				switchToOrthographicViewButton.style.position = 'absolute';
-				switchToOrthographicViewButton.style.top = '10px';
-				switchToOrthographicViewButton.style.left = '10px';
-				document.body.appendChild(switchToOrthographicViewButton);
+				// const switchToOrthographicViewButton = document.createElement('button');
+				// switchToOrthographicViewButton.textContent = 'Switch to Orthographic View';
+				// switchToOrthographicViewButton.style.position = 'absolute';
+				// switchToOrthographicViewButton.style.top = '10px';
+				// switchToOrthographicViewButton.style.left = '10px';
+				// document.body.appendChild(switchToOrthographicViewButton);
 				
-				switchToOrthographicViewButton.addEventListener('click', function() {
-				camera = orthographicCamera; // 切换到正视投影摄像机
-				render(); // 重新渲染
-				});
+				// switchToOrthographicViewButton.addEventListener('click', function() {
+				// camera = orthographicCamera; // 切换到正视投影摄像机
+				// render(); // 重新渲染
+				// });
 
 				
 				//scene.add( new THREE.AxesHelper( 1 ) );	
@@ -105,9 +105,15 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 			}
 			
 			function onWindowResize() {
-
-				camera.aspect = window.innerWidth / window.innerHeight;
+				
+				camera.left = -window.innerWidth / 2;
+				camera.right = window.innerWidth / 2;
+				camera.top = window.innerHeight / 2;
+				camera.bottom = -window.innerHeight / 2;
 				camera.updateProjectionMatrix();
+				
+				// camera.aspect = window.innerWidth / window.innerHeight;
+				// camera.updateProjectionMatrix();
 
 				renderer.setSize( window.innerWidth, window.innerHeight );
 
