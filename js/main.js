@@ -12,7 +12,7 @@ render();
 function init() {
     // Initialize the orthographic camera
     const aspect = window.innerWidth / window.innerHeight;
-    const frustumSize = 10; // Increase the frustum size to make the view larger
+    const frustumSize = 100; // Increase the frustum size to make the view larger
     camera = new THREE.OrthographicCamera(
         frustumSize * aspect / -2,
         frustumSize * aspect / 2,
@@ -60,7 +60,7 @@ function init() {
 
 function onWindowResize() {
     const aspect = window.innerWidth / window.innerHeight;
-    const frustumSize = 10; // Ensure this matches the initial frustum size
+    const frustumSize = 100; // Ensure this matches the initial frustum size
 
     camera.left = frustumSize * aspect / -2;
     camera.right = frustumSize * aspect / 2;
