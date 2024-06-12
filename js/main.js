@@ -8,10 +8,10 @@ let camera, scene, renderer;
 
 init();
 render();
+let frustumSize = 5000; // 初始值
 
 function init() {
     // 添加frustumSize控件
-    let frustumSize = 5000; // 初始值
     const aspect = window.innerWidth / window.innerHeight;
     // const frustumSize = 5000; // Increase the frustum size to make the view larger
     camera = new THREE.OrthographicCamera(
