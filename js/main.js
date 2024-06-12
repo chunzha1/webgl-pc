@@ -22,7 +22,7 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 				        frustumSize / 2,
 				        frustumSize / - 2,
 				        0.01,
-				        100
+				        10
 				    );
 				
 				    orthographicCamera.position.set(0, 0, 0);
