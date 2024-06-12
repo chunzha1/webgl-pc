@@ -71,12 +71,23 @@ function init() {
         camera.position.set(center.x, center.y, center.z - 10); // 调整相机位置
         camera.lookAt(center);
         
-        // Add GUI controls for point size and color
-        const gui = new GUI();
-        gui.add(points.material, 'size', 0.001, 1.5).onChange(render);
-        gui.addColor(points.material, 'color').onChange(render);
-        gui.add(frustumSize, 'value', 10, 50000).onChange(render);
-        gui.open();
+        // // Add GUI controls for point size and color
+        // const gui = new GUI();
+        // gui.add(points.material, 'size', 0.001, 1.5).onChange(render);
+        // gui.addColor(points.material, 'color').onChange(render);
+        // gui.add(frustumSize, 'value', 10, 50000).onChange(render);
+        // gui.open();
+        
+        const gui = new GUI(); // 创建GUI
+        gui.add(controls, 'minDistance', 0.05, 10).onChange(render); // 控制最小距离
+        gui.add(controls, 'maxDistance', 10, 200).onChange(render); // 控制最大距离
+        gui.add(controls, 'enableZoom').name('Enable Zoom').onChange(render); // 控制是否允许缩放
+        gui.add(controls, 'enableRotate').name('Enable Rotate').onChange(render); // 控制是否允许旋转
+
+        const materialGUI = gui.addFolder('Material Settings'); // 创建一个材质设置的折叠面板
+        materialGUI.add(points.material, 'size', 0.001, 1.5).onChange(render); // 控制点的大小
+        materialGUI.addColor(points.material, 'color').onChange(render); // 控制点的颜色
+        materialGUI.open(); // 默认展开材质设置的折叠面板
 
         render();
     });
