@@ -103,12 +103,29 @@ function init() {
         renderer.setClearColor(new THREE.Color(value), 1);
         });
         materialGUI.open(); // 默认展开材质设置的折叠面板
-
+        // 创建清除所有点云的按钮
+        const clearAllButton = document.createElement('button');
+        clearAllButton.textContent = 'Clear All Point Clouds';
+        clearAllButton.onclick = function() {
+            clearAllPointClouds();
+        };
+        document.body.appendChild(clearAllButton);
+        
         //?
         render();
     });
 
     window.addEventListener('resize', onWindowResize);
+}
+
+// 清除所有点云的函数
+function clearAllPointClouds() {
+    for (let i = scene.children.length - 1; i >= 0; i--) {
+        const child = scene.children[i];
+        if (child instanceof THREE.Points) {
+            scene.remove(child);
+        }
+    }
 }
 
 function onWindowResize() {
