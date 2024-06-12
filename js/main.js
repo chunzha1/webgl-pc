@@ -32,7 +32,7 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 				const switchToOrthographicViewButton = document.createElement('button');
 				switchToOrthographicViewButton.textContent = 'Switch to Orthographic View';
 				switchToOrthographicViewButton.style.position = 'absolute';
-				switchToOrthographicViewButton.style.top = '100px';
+				switchToOrthographicViewButton.style.top = '10px';
 				switchToOrthographicViewButton.style.left = '10px';
 				document.body.appendChild(switchToOrthographicViewButton);
 				
