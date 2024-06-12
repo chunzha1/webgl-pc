@@ -10,7 +10,37 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 			render();
 
 			function init() {
+				let orthographicCamera;
 
+				function createOrthographicCamera() {
+				    const aspect = window.innerWidth / window.innerHeight;
+				    const frustumSize = 1;
+				
+				    orthographicCamera = new THREE.OrthographicCamera(
+				        frustumSize * aspect / - 2,
+				        frustumSize * aspect / 2,
+				        frustumSize / 2,
+				        frustumSize / - 2,
+				        0.01,
+				        10
+				    );
+				
+				    orthographicCamera.position.set(0, 0, 1);
+				    orthographicCamera.lookAt(new THREE.Vector3(0, 0, 0));
+				}
+
+				const switchToOrthographicViewButton = document.createElement('button');
+				switchToOrthographicViewButton.textContent = 'Switch to Orthographic View';
+				switchToOrthographicViewButton.style.position = 'absolute';
+				switchToOrthographicViewButton.style.top = '100px';
+				switchToOrthographicViewButton.style.left = '10px';
+				document.body.appendChild(switchToOrthographicViewButton);
+				
+				switchToOrthographicViewButton.addEventListener('click', function() {
+				    camera = orthographicCamera; // 切换到正视投影摄像机
+				    render(); // 重新渲染
+				});
+				
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
