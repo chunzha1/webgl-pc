@@ -104,8 +104,6 @@ function init() {
         });
         materialGUI.open(); // 默认展开材质设置的折叠面板
 
-        const gui = new GUI();
-
         // 添加一个按钮来清除所有点云
         gui.add(new THREE.Object3D(), 'clearPoints').name('Clear Points').onFinishChange(function() {
             // 遍历场景中的所有对象
