@@ -6,9 +6,9 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
 let camera, scene, renderer;
 
+let frustumSize = 5000; // 初始值
 init();
 render();
-let frustumSize = 5000; // 初始值
 
 function init() {
     // 添加frustumSize控件
