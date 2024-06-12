@@ -22,11 +22,11 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 				        frustumSize / 2,
 				        frustumSize / - 2,
 				        0.01,
-				        10
+				        100
 				    );
 				
-				    orthographicCamera.position.set(0, 0, 1);
-				    orthographicCamera.lookAt(new THREE.Vector3(0, 0, 0));
+				    orthographicCamera.position.set(0, 0, 0);
+				    orthographicCamera.lookAt(new THREE.Vector3(1, 1, 0));
 				}
 				//
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
