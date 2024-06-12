@@ -83,6 +83,7 @@ function init() {
         gui.add(controls, 'maxDistance', 10, 200).onChange(render); // 控制最大距离
         gui.add(controls, 'enableZoom').name('Enable Zoom').onChange(render); // 控制是否允许缩放
         gui.add(controls, 'enableRotate').name('Enable Rotate').onChange(render); // 控制是否允许旋转
+        gui.add(frustumSize, 'value', 10, 50000).onChange(render);
 
         const materialGUI = gui.addFolder('Material Settings'); // 创建一个材质设置的折叠面板
         materialGUI.add(points.material, 'size', 0.001, 1.5).onChange(render); // 控制点的大小
