@@ -104,18 +104,18 @@ function init() {
         });
         materialGUI.open(); // 默认展开材质设置的折叠面板
 
-        // 添加一个按钮来清除所有点云
-        gui.add(new THREE.Object3D(), 'clearPoints').name('Clear Points').onFinishChange(function() {
-            // 遍历场景中的所有对象
-            scene.traverse(function(object) {
-                // 检查对象是否为点云（PointCloud 类型）
-                if (object.isPoints) {
-                    // 从场景中移除点云
-                    scene.remove(object);
-                }
-            });
+        const clearButton = { clear: function() { clearPointClouds(); } }; // 创建一个对象，包含清除函数
+        gui.add(clearButton, 'clear').name('Clear Point Clouds'); // 添加清除按钮
+
+        //clear
+        function clearPointClouds() {
+        // 移除场景中所有的点云对象
+        scene.children.forEach(child => {
+            if (child instanceof THREE.Points) {
+                scene.remove(child);
+            }
         });
-  
+        }
         render();
     });
 
