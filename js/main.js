@@ -27,15 +27,15 @@ function init() {
 
     
     // Initialize the orthographic camera
-    const gui = new GUI();
-    // 控制相机的参数
-    const cameraFolder = gui.addFolder('Camera Parameters');
-    cameraFolder.add(camera, 'near', 0.001, 10).name('Near Clipping Plane');
-    cameraFolder.add(camera, 'far', 10, 500).name('Far Clipping Plane');
+    // const gui = new GUI();
+    // // 控制相机的参数
+    // const cameraFolder = gui.addFolder('Camera Parameters');
+    // cameraFolder.add(camera, 'near', 0.001, 10).name('Near Clipping Plane');
+    // cameraFolder.add(camera, 'far', 10, 500).name('Far Clipping Plane');
     
-    cameraFolder.add(frustumSize, 'value', 1000, 10000).name('Frustum Size');
+    // cameraFolder.add(frustumSize, 'value', 1000, 10000).name('Frustum Size');
     
-    cameraFolder.open();
+    // cameraFolder.open();
 
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -50,12 +50,12 @@ function init() {
     controls.addEventListener('change', render); // use if there is no animation loop
     controls.minDistance = 0.01;
     controls.maxDistance = 280;
-    
-    // 控制OrbitControls的参数
-    const controlsFolder = gui.addFolder('Orbit Controls');
-    controlsFolder.add(controls, 'minDistance', 0.0001, 12).name('Min Distance');
-    controlsFolder.add(controls, 'maxDistance', 0.01, 880).name('Max Distance');
-    controlsFolder.open();
+
+    // // 控制OrbitControls的参数
+    // const controlsFolder = gui.addFolder('Orbit Controls');
+    // controlsFolder.add(controls, 'minDistance', 0.0001, 12).name('Min Distance');
+    // controlsFolder.add(controls, 'maxDistance', 0.01, 880).name('Max Distance');
+    // controlsFolder.open();
     
     // Load PCD file
     const loader = new PCDLoader();
@@ -72,13 +72,12 @@ function init() {
         camera.lookAt(center);
         
         // Add GUI controls for point size and color
-        // const gui = new GUI();
+        const gui = new GUI();
         gui.add(points.material, 'size', 0.001, 1.5).onChange(render);
         gui.addColor(points.material, 'color').onChange(render);
         gui.add(camera.near, 'near', 0.001, 15).onChange(render);
         gui.open();
 
-        
         render();
     });
 
