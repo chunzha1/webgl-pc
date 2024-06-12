@@ -14,23 +14,25 @@ function init() {
     const gui = new GUI();
     // 控制相机的参数
     const cameraFolder = gui.addFolder('Camera Parameters');
-    cameraFolder.open();
-
+    
     cameraFolder.add(camera, 'near', 0.001, 10).name('Near Clipping Plane');
     cameraFolder.add(camera, 'far', 10, 500).name('Far Clipping Plane');
-
-    // 控制OrbitControls的参数
-    const controlsFolder = gui.addFolder('Orbit Controls');
-    controlsFolder.open();
-
-    controlsFolder.add(controls, 'minDistance', 0.01, 280).name('Min Distance');
-    controlsFolder.add(controls, 'maxDistance', 0.01, 280).name('Max Distance');
-
-
     // 添加frustumSize控件
     let frustumSize = 5000; // 初始值
     cameraFolder.add(frustumSize, 'value', 1000, 10000).name('Frustum Size');
     
+    cameraFolder.open();
+
+    
+    // 控制OrbitControls的参数
+    const controlsFolder = gui.addFolder('Orbit Controls');
+
+    controlsFolder.add(controls, 'minDistance', 0.01, 280).name('Min Distance');
+    controlsFolder.add(controls, 'maxDistance', 0.01, 280).name('Max Distance');
+    
+    controlsFolder.open();
+
+
     const aspect = window.innerWidth / window.innerHeight;
     // const frustumSize = 5000; // Increase the frustum size to make the view larger
     camera = new THREE.OrthographicCamera(
