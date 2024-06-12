@@ -28,19 +28,7 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 				    orthographicCamera.position.set(0, 0, 1);
 				    orthographicCamera.lookAt(new THREE.Vector3(0, 0, 0));
 				}
-
-				const switchToOrthographicViewButton = document.createElement('button');
-				switchToOrthographicViewButton.textContent = 'Switch to Orthographic View';
-				switchToOrthographicViewButton.style.position = 'absolute';
-				switchToOrthographicViewButton.style.top = '10px';
-				switchToOrthographicViewButton.style.left = '10px';
-				document.body.appendChild(switchToOrthographicViewButton);
-				
-				switchToOrthographicViewButton.addEventListener('click', function() {
-				    camera = orthographicCamera; // 切换到正视投影摄像机
-				    render(); // 重新渲染
-				});
-				
+				//
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
@@ -57,7 +45,24 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 				controls.addEventListener( 'change', render ); // use if there is no animation loop
 				controls.minDistance = 0.05;
 				controls.maxDistance = 80;
+				
+				// 初始化正视投影摄像机
+				createOrthographicCamera();
+				
+				// 添加切换到正视投影视角的按钮
+				const switchToOrthographicViewButton = document.createElement('button');
+				switchToOrthographicViewButton.textContent = 'Switch to Orthographic View';
+				switchToOrthographicViewButton.style.position = 'absolute';
+				switchToOrthographicViewButton.style.top = '10px';
+				switchToOrthographicViewButton.style.left = '10px';
+				document.body.appendChild(switchToOrthographicViewButton);
+				
+				switchToOrthographicViewButton.addEventListener('click', function() {
+				camera = orthographicCamera; // 切换到正视投影摄像机
+				render(); // 重新渲染
+				});
 
+				
 				//scene.add( new THREE.AxesHelper( 1 ) );	
 				const loader = new PCDLoader();
 				loader.load( 'images/L1NNSGHA4PB024820R.pcd', function ( points ) {
@@ -96,7 +101,7 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 				// });
 
 			}
-
+			
 			function onWindowResize() {
 
 				camera.aspect = window.innerWidth / window.innerHeight;
