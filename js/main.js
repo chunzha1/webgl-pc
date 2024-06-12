@@ -46,6 +46,12 @@ function init() {
         points.name = 'Zaghetto.pcd';
         scene.add(points);
 
+        // 更新相机位置，使其对准新的点云
+        const boundingBox = new THREE.Box3().setFromObject(points);
+        const center = boundingBox.getCenter(new THREE.Vector3());
+        camera.position.set(center.x, center.y, center.z - 10); // 调整相机位置
+        camera.lookAt(center);
+        
         // Add GUI controls for point size and color
         const gui = new GUI();
         gui.add(points.material, 'size', 0.001, 1.5).onChange(render);
