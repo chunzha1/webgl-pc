@@ -10,28 +10,8 @@ init();
 render();
 
 function init() {
-    // Initialize the orthographic camera
-    const gui = new GUI();
-    // 控制相机的参数
-    const cameraFolder = gui.addFolder('Camera Parameters');
-    cameraFolder.add(camera, 'near', 0.001, 10).name('Near Clipping Plane');
-    cameraFolder.add(camera, 'far', 10, 500).name('Far Clipping Plane');
     // 添加frustumSize控件
     let frustumSize = 5000; // 初始值
-    cameraFolder.add(frustumSize, 'value', 1000, 10000).name('Frustum Size');
-    
-    cameraFolder.open();
-
-    
-    // 控制OrbitControls的参数
-    const controlsFolder = gui.addFolder('Orbit Controls');
-
-    controlsFolder.add(controls, 'minDistance', 0.01, 280).name('Min Distance');
-    controlsFolder.add(controls, 'maxDistance', 0.01, 280).name('Max Distance');
-    
-    controlsFolder.open();
-
-
     const aspect = window.innerWidth / window.innerHeight;
     // const frustumSize = 5000; // Increase the frustum size to make the view larger
     camera = new THREE.OrthographicCamera(
@@ -42,9 +22,21 @@ function init() {
         0.001,  // Set a smaller near clipping plane
         200     // Increase the far clipping plane
     );
-
     camera.position.set(0, 0, -10); // Move the camera back to avoid clipping
     camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+    
+    // Initialize the orthographic camera
+    const gui = new GUI();
+    // 控制相机的参数
+    const cameraFolder = gui.addFolder('Camera Parameters');
+    cameraFolder.add(camera, 'near', 0.001, 10).name('Near Clipping Plane');
+    cameraFolder.add(camera, 'far', 10, 500).name('Far Clipping Plane');
+    
+    cameraFolder.add(frustumSize, 'value', 1000, 10000).name('Frustum Size');
+    
+    cameraFolder.open();
+
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -58,6 +50,12 @@ function init() {
     controls.addEventListener('change', render); // use if there is no animation loop
     controls.minDistance = 0.01;
     controls.maxDistance = 280;
+    
+    // 控制OrbitControls的参数
+    const controlsFolder = gui.addFolder('Orbit Controls');
+    controlsFolder.add(controls, 'minDistance', 0.0001, 12).name('Min Distance');
+    controlsFolder.add(controls, 'maxDistance', 0.01, 880).name('Max Distance');
+    controlsFolder.open();
     
     // Load PCD file
     const loader = new PCDLoader();
