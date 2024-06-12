@@ -59,6 +59,12 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 				switchViewButton.style.left = '10px';
 				document.body.appendChild(switchViewButton);
 
+				switchViewButton.addEventListener('click', function() {
+				camera.position.set(0, 0, 1); // 设置摄像机位置
+				camera.lookAt(new THREE.Vector3(0, 0, 0)); // 设置摄像机朝向
+				render(); // 重新渲染
+});
+
 			}
 
 			function onWindowResize() {
