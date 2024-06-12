@@ -18,14 +18,15 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
 				scene = new THREE.Scene();
 
-				camera = new THREE.PerspectiveCamera( 30, window.innerWidth / window.innerHeight, 0.01, 40 );
+				camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.001, 120 );
 				camera.position.set( 0, 0, 1 );
+				camera.lookAt(new THREE.Vector3(1, 0, 1));
 				scene.add( camera );
 
 				const controls = new OrbitControls( camera, renderer.domElement );
 				controls.addEventListener( 'change', render ); // use if there is no animation loop
-				controls.minDistance = 0.5;
-				controls.maxDistance = 10;
+				controls.minDistance = 0.05;
+				controls.maxDistance = 80;
 
 				//scene.add( new THREE.AxesHelper( 1 ) );
 
