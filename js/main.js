@@ -52,6 +52,12 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 				} );
 
 				window.addEventListener( 'resize', onWindowResize );
+				const switchViewButton = document.createElement('button');
+				switchViewButton.textContent = 'Switch to Orthographic View';
+				switchViewButton.style.position = 'absolute';
+				switchViewButton.style.top = '10px';
+				switchViewButton.style.left = '10px';
+				document.body.appendChild(switchViewButton);
 
 			}
 
