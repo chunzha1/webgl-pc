@@ -82,17 +82,17 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 				} );
 
 				window.addEventListener( 'resize', onWindowResize );
-				const switchViewButton = document.createElement('button');
-				switchViewButton.textContent = 'Switch to Orthographic View';
-				switchViewButton.style.position = 'absolute';
-				switchViewButton.style.top = '10px';
-				switchViewButton.style.left = '10px';
-				document.body.appendChild(switchViewButton);
+				// const switchViewButton = document.createElement('button');
+				// switchViewButton.textContent = 'Switch to Orthographic View';
+				// switchViewButton.style.position = 'absolute';
+				// switchViewButton.style.top = '10px';
+				// switchViewButton.style.left = '10px';
+				// document.body.appendChild(switchViewButton);
 
-				switchViewButton.addEventListener('click', function() {
-				camera.position.set(0, 0, 0); // 设置摄像机位置
-				camera.lookAt(new THREE.Vector3(1, 1, 0)); // 设置摄像机朝向
-				render(); // 重新渲染
+				// switchViewButton.addEventListener('click', function() {
+				// camera.position.set(0, 0, 0); // 设置摄像机位置
+				// camera.lookAt(new THREE.Vector3(1, 1, 0)); // 设置摄像机朝向
+				// render(); // 重新渲染
 });
 
 			}
