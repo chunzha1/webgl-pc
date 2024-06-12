@@ -35,7 +35,9 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 				document.body.appendChild( renderer.domElement );
 
 				scene = new THREE.Scene();
-
+				
+				// 初始化正视投影摄像机
+				createOrthographicCamera();
 				camera = orthographicCamera; // Use only orthographic camera
 
 				// camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.001, 120 );
@@ -47,9 +49,7 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 				// controls.addEventListener( 'change', render ); // use if there is no animation loop
 				// controls.minDistance = 0.05;
 				// controls.maxDistance = 80;
-				
-				// 初始化正视投影摄像机
-				createOrthographicCamera();
+
 				
 				// 添加切换到正视投影视角的按钮
 				const switchToOrthographicViewButton = document.createElement('button');
