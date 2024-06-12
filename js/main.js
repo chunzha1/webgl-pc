@@ -14,7 +14,7 @@ function init() {
     const gui = new GUI();
     // 控制相机的参数
     const cameraFolder = gui.addFolder('Camera Parameters');
-    
+    gui.add(camera.near, 'near', 0.001, 15).onChange(render);
     cameraFolder.add(camera, 'near', 0.001, 10).name('Near Clipping Plane');
     cameraFolder.add(camera, 'far', 10, 500).name('Far Clipping Plane');
     // 添加frustumSize控件
