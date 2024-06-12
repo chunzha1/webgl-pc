@@ -73,7 +73,7 @@ function init() {
         camera.lookAt(center);
         
         // Add GUI controls for point size and color
-        const gui = new GUI();
+        // const gui = new GUI();
         gui.add(points.material, 'size', 0.001, 1.5).onChange(render);
         gui.addColor(points.material, 'color').onChange(render);
         gui.open();
