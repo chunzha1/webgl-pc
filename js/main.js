@@ -98,7 +98,12 @@ function init() {
         const materialGUI = gui.addFolder('Material Settings'); // 创建一个材质设置的折叠面板
         materialGUI.add(points.material, 'size', 0.001, 1.5).onChange(render); // 控制点的大小
         materialGUI.addColor(points.material, 'color').onChange(render); // 控制点的颜色
+        const backgroundColor = { color: '#000000' }; // 初始颜色为黑色
+        materialGUI.addColor(backgroundColor, 'color').onChange(function(value) {
+        renderer.setClearColor(new THREE.Color(value), 1);
+        });
         materialGUI.open(); // 默认展开材质设置的折叠面板
+
         //?
         render();
     });
