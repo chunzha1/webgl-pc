@@ -11,8 +11,28 @@ render();
 
 function init() {
     // Initialize the orthographic camera
+    const gui = new GUI();
+    // 控制相机的参数
+    const cameraFolder = gui.addFolder('Camera Parameters');
+    cameraFolder.open();
+
+    cameraFolder.add(camera, 'near', 0.001, 10).name('Near Clipping Plane');
+    cameraFolder.add(camera, 'far', 10, 500).name('Far Clipping Plane');
+
+    // 控制OrbitControls的参数
+    const controlsFolder = gui.addFolder('Orbit Controls');
+    controlsFolder.open();
+
+    controlsFolder.add(controls, 'minDistance', 0.01, 280).name('Min Distance');
+    controlsFolder.add(controls, 'maxDistance', 0.01, 280).name('Max Distance');
+
+
+    // 添加frustumSize控件
+    let frustumSize = 5000; // 初始值
+    cameraFolder.add(frustumSize, 'value', 1000, 10000).name('Frustum Size');
+    
     const aspect = window.innerWidth / window.innerHeight;
-    const frustumSize = 5000; // Increase the frustum size to make the view larger
+    // const frustumSize = 5000; // Increase the frustum size to make the view larger
     camera = new THREE.OrthographicCamera(
         frustumSize * aspect / -2,
         frustumSize * aspect / 2,
@@ -37,7 +57,7 @@ function init() {
     controls.addEventListener('change', render); // use if there is no animation loop
     controls.minDistance = 0.01;
     controls.maxDistance = 280;
-
+    
     // Load PCD file
     const loader = new PCDLoader();
     loader.load('images/L1NNSGHA4PB024820R.pcd', function (points) {
@@ -58,6 +78,7 @@ function init() {
         gui.addColor(points.material, 'color').onChange(render);
         gui.open();
 
+        
         render();
     });
 
@@ -66,7 +87,7 @@ function init() {
 
 function onWindowResize() {
     const aspect = window.innerWidth / window.innerHeight;
-    const frustumSize = 5000; // Ensure this matches the initial frustum size
+    // const frustumSize = 5000; // Ensure this matches the initial frustum size
 
     camera.left = frustumSize * aspect / -2;
     camera.right = frustumSize * aspect / 2;
