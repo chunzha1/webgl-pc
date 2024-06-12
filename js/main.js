@@ -93,7 +93,7 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 				// camera.position.set(0, 0, 0); // 设置摄像机位置
 				// camera.lookAt(new THREE.Vector3(1, 1, 0)); // 设置摄像机朝向
 				// render(); // 重新渲染
-});
+				// });
 
 			}
 
