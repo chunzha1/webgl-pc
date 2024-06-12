@@ -28,20 +28,7 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 				controls.minDistance = 0.05;
 				controls.maxDistance = 80;
 
-				//scene.add( new THREE.AxesHelper( 1 ) );
-				const uploadButton = document.createElement('button');
-				uploadButton.textContent = 'Upload CSV';
-				document.body.appendChild(uploadButton);
-				
-				// 处理文件上传事件
-				uploadButton.addEventListener('change', function(event) {
-				const file = event.target.files[0];
-				if (file) {
-				readCSVFile(file);
-				}
-				});
-				
-				//
+				//scene.add( new THREE.AxesHelper( 1 ) );	
 				const loader = new PCDLoader();
 				loader.load( 'images/L1NNSGHA4PB024820R.pcd', function ( points ) {
 
@@ -67,41 +54,6 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 				window.addEventListener( 'resize', onWindowResize );
 
 			}
-
-			//new function
-			function readCSVFile(file) {
-			  const reader = new FileReader();
-			  reader.onload = function(event) {
-			    const csvData = event.target.result;
-			    createPointCloudFromCSV(csvData);
-			  };
-			  reader.readAsText(file);
-			}
-			
-			function createPointCloudFromCSV(csvData) {
-			  const points = [];
-			  const lines = csvData.split('\n');
-			  for (let i = 1; i < lines.length; i++) { // 跳过CSV头部
-			    const line = lines[i];
-			    const values = line.split(',');
-			    if (values.length >= 3) {
-			      const x = parseFloat(values[0]);
-			      const y = parseFloat(values[1]);
-			      const z = parseFloat(values[2]);
-			      points.push(x, y, z);
-			    }
-			  }
-			
-			  const geometry = new THREE.BufferGeometry();
-			  geometry.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
-			
-			  const material = new THREE.PointsMaterial({ size: 0.02, sizeAttenuation: true });
-			  const pointCloud = new THREE.Points(geometry, material);
-			
-			  scene.add(pointCloud);
-			  render();
-			}
-
 
 			function onWindowResize() {
 
