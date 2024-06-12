@@ -75,7 +75,7 @@ function init() {
         const gui = new GUI();
         gui.add(points.material, 'size', 0.001, 1.5).onChange(render);
         gui.addColor(points.material, 'color').onChange(render);
-        gui.add(camera.near, 'near', 0.001, 15).onChange(render);
+        gui.add(frustumSize, 'value', 10, 50000).onChange(render);
         gui.open();
 
         render();
