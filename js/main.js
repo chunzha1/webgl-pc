@@ -88,7 +88,7 @@ function init() {
         materialGUI.add(points.material, 'size', 0.001, 1.5).onChange(render); // 控制点的大小
         materialGUI.addColor(points.material, 'color').onChange(render); // 控制点的颜色
         materialGUI.open(); // 默认展开材质设置的折叠面板
-
+        //?
         render();
     });
 
