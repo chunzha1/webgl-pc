@@ -88,7 +88,7 @@ function init() {
             };
         
         // 添加一个滑块来控制 frustumSize
-        gui.add(parameters, 'frustumSize', 10, 50000).onChange(function() {
+        gui.add(parameters, 'frustumSize', 10, 10000).onChange(function() {
             // 更新 frustumSize 的值
             frustumSize = parameters.frustumSize;
             // 更新相机的投影矩阵
