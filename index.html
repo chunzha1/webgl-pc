@@ -1,65 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pose Detection</title>
-    <script src="https://gcore.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <script src="https://gcore.jsdelivr.net/npm/@tensorflow-models/posenet"></script>
+    <title>实时视频共享</title>
     <style>
         video {
             width: 100%;
             max-width: 600px;
-            border: 2px solid black;
-        }
-        #status {
-            margin-top: 20px;
-            font-size: 20px;
-            color: red;
         }
     </style>
 </head>
 <body>
-    <h1>Pose Detection</h1>
-    <video id="video" autoplay muted></video>
-    <div id="status"></div>
+    <h1>实时视频共享</h1>
+    <video id="localVideo" autoplay playsinline></video>
+    <button id="startButton">开始共享</button>
+    <p>共享ID: <span id="shareId"></span></p>
+    <input type="text" id="remoteId" placeholder="输入远程ID">
+    <button id="connectButton">连接</button>
+    <button id="disconnectButton" disabled>断开连接</button>
+    <video id="remoteVideo" autoplay playsinline></video>
 
-    <script>
-        async function setupCamera() {
-            const video = document.getElementById('video');
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-            video.srcObject = stream;
-            return new Promise(resolve => {
-                video.onloadedmetadata = () => {
-                    resolve(video);
-                };
-            });
-        }
-
-        async function detectPose(video) {
-            const net = await posenet.load();
-            const pose = await net.estimateSinglePose(video, {
-                flipHorizontal: false
-            });
-            return pose.score > 0.5 && pose.keypoints.some(kp => kp.part === 'nose' && kp.position.y < 100);
-        }
-
-        async function main() {
-            const video = await setupCamera();
-
-            setInterval(async () => {
-                const isStanding = await detectPose(video);
-
-                const statusElement = document.getElementById('status');
-                if (isStanding) {
-                    statusElement.textContent = 'Standing detected!';
-                } else {
-                    statusElement.textContent = '';
-                }
-            }, 1000);
-        }
-
-        main();
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.3.2/peerjs.min.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
