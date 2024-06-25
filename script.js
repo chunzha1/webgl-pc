@@ -29,7 +29,7 @@ startCallButton.addEventListener('click', async () => {
 callPeerButton.addEventListener('click', () => {
     const peerId = peerIdInput.value;
     if (peerId) {
-        call = peer.call(peerId, localStream);
+        var call = peer.call(peerId, localStream);
         call.on('stream', (remoteStream) => {
             remoteVideo.srcObject = remoteStream;
         });
