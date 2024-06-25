@@ -27,12 +27,13 @@ startCallButton.addEventListener('click', async () => {
 });
 
 callPeerButton.addEventListener('click', () => {
-    peer = new Peer();
     const peerId = peerIdInput.value;
-    if (peerId) {
-        var call = peer.call(peerId, localStream);
+    if (peerId && peer) { // 确保 peer 对象已经初始化
+        call = peer.call(peerId, localStream);
         call.on('stream', (remoteStream) => {
             remoteVideo.srcObject = remoteStream;
         });
+    } else {
+        console.error('Peer is not initialized or peer ID is empty');
     }
 });
