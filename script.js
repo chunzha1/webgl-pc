@@ -3,6 +3,8 @@ const remoteVideo = document.getElementById('remoteVideo');
 const peerIdInput = document.getElementById('peerId');
 const callButton = document.getElementById('callButton');
 const statusDiv = document.getElementById('status');
+const enableVideoCheckbox = document.getElementById('enableVideo');
+const enableAudioCheckbox = document.getElementById('enableAudio');
 
 const peer = new Peer();
 
@@ -13,7 +15,11 @@ peer.on('open', id => {
 
 peer.on('call', call => {
     statusDiv.innerText = 'Receiving a call...';
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    const mediaConstraints = {
+        video: enableVideoCheckbox.checked,
+        audio: enableAudioCheckbox.checked
+    };
+    navigator.mediaDevices.getUserMedia(mediaConstraints)
         .then(stream => {
             call.answer(stream);
             localVideo.srcObject = stream;
@@ -31,16 +37,27 @@ peer.on('call', call => {
 callButton.addEventListener('click', () => {
     const peerId = peerIdInput.value;
     statusDiv.innerText = `Calling ${peerId}...`;
-    // A 不发送任何媒体流
-    const call = peer.call(peerId, null);
-    call.on('stream', remoteStream => {
-        remoteVideo.srcObject = remoteStream;
-        statusDiv.innerText = 'Call connected!';
-    });
-    call.on('error', err => {
-        console.error('Call error:', err);
-        statusDiv.innerText = `Call error: ${err}`;
-    });
+    const mediaConstraints = {
+        video: enableVideoCheckbox.checked,
+        audio: enableAudioCheckbox.checked
+    };
+    navigator.mediaDevices.getUserMedia(mediaConstraints)
+        .then(stream => {
+            const call = peer.call(peerId, stream);
+            localVideo.srcObject = stream;
+            call.on('stream', remoteStream => {
+                remoteVideo.srcObject = remoteStream;
+                statusDiv.innerText = 'Call connected!';
+            });
+            call.on('error', err => {
+                console.error('Call error:', err);
+                statusDiv.innerText = `Call error: ${err}`;
+            });
+        })
+        .catch(err => {
+            console.error('Failed to get local stream', err);
+            statusDiv.innerText = 'Failed to get local stream';
+        });
 });
 
 peer.on('error', err => {
