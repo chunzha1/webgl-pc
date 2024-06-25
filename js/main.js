@@ -43,6 +43,11 @@ function initializePeer() {
 }
 
 function connectToPeer() {
+    if (!peer) {
+        console.error('Peer is not initialized yet.');
+        return;
+    }
+
     const remoteId = remoteIdInput.value;
     const call = peer.call(remoteId, localStream);
     handleCall(call);
