@@ -10,3 +10,9 @@ video {
     border: 1px solid #ccc;
     background-color: #000;
 }
+
+#status {
+    margin-top: 20px;
+    font-size: 1.2em;
+    color: #333;
+}
