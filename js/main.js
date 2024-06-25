@@ -1,6 +1,7 @@
 let localStream;
 let remoteStream;
 let peer;
+let isPeerInitialized = false; // 新增标志变量
 const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
 const startButton = document.getElementById('startButton');
@@ -30,6 +31,7 @@ function initializePeer() {
     
     peer.on('open', (id) => {
         shareIdSpan.textContent = id;
+        isPeerInitialized = true; // 设置标志变量为true
     });
 
     peer.on('call', (call) => {
@@ -43,7 +45,7 @@ function initializePeer() {
 }
 
 function connectToPeer() {
-    if (!peer) {
+    if (!isPeerInitialized) {
         console.error('Peer is not initialized yet.');
         return;
     }
