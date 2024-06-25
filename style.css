@@ -16,3 +16,7 @@ video {
     font-size: 1.2em;
     color: #333;
 }
+
+div {
+    margin: 10px 0;
+}
