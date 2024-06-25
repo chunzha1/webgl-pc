@@ -17,6 +17,8 @@ startCallButton.addEventListener('click', async () => {
     peer.on('open', (id) => {
         console.log('My peer ID is: ' + id);
         alert('Your peer ID is: ' + id); // 提示用户他们的 peer ID
+        startCallButton.disabled = true; // 禁用 "Start Call" 按钮
+        callPeerButton.disabled = false; // 启用 "Call Peer" 按钮
     });
 
     peer.on('call', (incomingCall) => {
@@ -30,6 +32,7 @@ startCallButton.addEventListener('click', async () => {
 callPeerButton.addEventListener('click', () => {
     const peerId = peerIdInput.value;
     if (peerId && peer) { // 确保 peer 对象已经初始化
+        peer = new Peer();
         call = peer.call(peerId, localStream);
         call.on('stream', (remoteStream) => {
             remoteVideo.srcObject = remoteStream;
