@@ -16,6 +16,7 @@ startCallButton.addEventListener('click', async () => {
 
     peer.on('open', (id) => {
         console.log('My peer ID is: ' + id);
+        alert('Your peer ID is: ' + id); // 提示用户他们的 peer ID
     });
 
     peer.on('call', (incomingCall) => {
@@ -34,6 +35,10 @@ callPeerButton.addEventListener('click', () => {
             remoteVideo.srcObject = remoteStream;
         });
     } else {
-        console.error('Peer is not initialized or peer ID is empty');
+        if (!peer) {
+            alert('Please start a call first to initialize your peer connection.');
+        } else if (!peerId) {
+            alert('Please enter a valid peer ID.');
+        }
     }
 });
