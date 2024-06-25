@@ -1,144 +1,73 @@
-// main.js
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { PCDLoader } from 'three/addons/loaders/PCDLoader.js';
-import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+let localStream;
+let remoteStream;
+let peer;
+const localVideo = document.getElementById('localVideo');
+const remoteVideo = document.getElementById('remoteVideo');
+const startButton = document.getElementById('startButton');
+const shareIdSpan = document.getElementById('shareId');
+const remoteIdInput = document.getElementById('remoteId');
+const connectButton = document.getElementById('connectButton');
+const disconnectButton = document.getElementById('disconnectButton');
 
-let camera, scene, renderer;
+startButton.addEventListener('click', startSharing);
+connectButton.addEventListener('click', connectToPeer);
+disconnectButton.addEventListener('click', disconnect);
 
-let frustumSize = 5000; // 初始值
-init();
-render();
-
-function init() {
-    // 添加frustumSize控件
-    const aspect = window.innerWidth / window.innerHeight;
-    // const frustumSize = 5000; // Increase the frustum size to make the view larger
-    camera = new THREE.OrthographicCamera(
-        frustumSize * aspect / -2,
-        frustumSize * aspect / 2,
-        frustumSize / 2,
-        frustumSize / -2,
-        0.001,  // Set a smaller near clipping plane
-        200     // Increase the far clipping plane
-    );
-    camera.position.set(0, 0, -10); // Move the camera back to avoid clipping
-    camera.lookAt(new THREE.Vector3(0, 0, 0));
-
-    
-    // Initialize the orthographic camera
-    // const gui = new GUI();
-    // // 控制相机的参数
-    // const cameraFolder = gui.addFolder('Camera Parameters');
-    // cameraFolder.add(camera, 'near', 0.001, 10).name('Near Clipping Plane');
-    // cameraFolder.add(camera, 'far', 10, 500).name('Far Clipping Plane');
-    
-    // cameraFolder.add(frustumSize, 'value', 1000, 10000).name('Frustum Size');
-    
-    // cameraFolder.open();
-
-
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
-
-    scene = new THREE.Scene();
-    scene.add(camera);
-
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.addEventListener('change', render); // use if there is no animation loop
-    controls.minDistance = 0.01;
-    controls.maxDistance = 280;
-
-    // // 控制OrbitControls的参数
-    // const controlsFolder = gui.addFolder('Orbit Controls');
-    // controlsFolder.add(controls, 'minDistance', 0.0001, 12).name('Min Distance');
-    // controlsFolder.add(controls, 'maxDistance', 0.01, 880).name('Max Distance');
-    // controlsFolder.open();
-    
-    // Load PCD file
-    const loader = new PCDLoader();
-    loader.load('images/L1NNSGHA4PB024820R.pcd', function (points) {
-        points.geometry.center();
-        points.geometry.rotateX(Math.PI);
-        points.name = 'Zaghetto.pcd';
-        scene.add(points);
-
-        // 更新相机位置，使其对准新的点云
-        const boundingBox = new THREE.Box3().setFromObject(points);
-        const center = boundingBox.getCenter(new THREE.Vector3());
-        camera.position.set(center.x, center.y, center.z - 10); // 调整相机位置
-        camera.lookAt(center);
-        
-        // // Add GUI controls for point size and color
-        // const gui = new GUI();
-        // gui.add(points.material, 'size', 0.001, 1.5).onChange(render);
-        // gui.addColor(points.material, 'color').onChange(render);
-        // gui.add(frustumSize, 'value', 10, 50000).onChange(render);
-        // gui.open();
-        
-        const gui = new GUI(); // 创建GUI
-        gui.add(controls, 'minDistance', 0.05, 10).onChange(render); // 控制最小距离
-        gui.add(controls, 'maxDistance', 10, 200).onChange(render); // 控制最大距离
-        gui.add(controls, 'enableZoom').name('Enable Zoom').onChange(render); // 控制是否允许缩放
-        gui.add(controls, 'enableRotate').name('Enable Rotate').onChange(render); // 控制是否允许旋转
-        const parameters = {
-                frustumSize: frustumSize // 使用当前的 frustumSize 值
-            };
-        
-        // 添加一个滑块来控制 frustumSize
-        gui.add(parameters, 'frustumSize', 10, 10000).onChange(function() {
-            // 更新 frustumSize 的值
-            frustumSize = parameters.frustumSize;
-            // 更新相机的投影矩阵
-            onWindowResize();
+function startSharing() {
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        .then(stream => {
+            localStream = stream;
+            localVideo.srcObject = stream;
+            initializePeer();
+        })
+        .catch(error => {
+            console.error('Error accessing media devices:', error);
         });
-                
-        const materialGUI = gui.addFolder('Material Settings'); // 创建一个材质设置的折叠面板
-        materialGUI.add(points.material, 'size', 0.001, 1.5).onChange(render); // 控制点的大小
-        materialGUI.addColor(points.material, 'color').name('PC color').onChange(render); // 控制点的颜色
-        const backgroundColor = { color: '#000000' }; // 初始颜色为黑色
-        materialGUI.addColor(backgroundColor, 'color').name('BG color').onChange(function(value) {
-        renderer.setClearColor(new THREE.Color(value), 1);
-        });
-        materialGUI.open(); // 默认展开材质设置的折叠面板
+}
 
-        const clearButton = { clear: function() { clearPointClouds(); } }; // 创建一个对象，包含清除函数
-        gui.add(clearButton, 'clear').name('Clear Point Clouds'); // 添加清除按钮
-
-        //clear
-        function clearPointClouds() {
-        // 移除场景中所有的点云对象
-        scene.children.forEach(child => {
-            if (child instanceof THREE.Points) {
-                scene.remove(child);
-            }
-        });
-        }
-        render();
+function initializePeer() {
+    peer = new Peer();
+    
+    peer.on('open', (id) => {
+        shareIdSpan.textContent = id;
     });
 
-    window.addEventListener('resize', onWindowResize);
+    peer.on('call', (call) => {
+        call.answer(localStream);
+        handleCall(call);
+    });
+
+    peer.on('error', (err) => {
+        console.error('PeerJS error:', err);
+    });
 }
 
-
-
-function onWindowResize() {
-    const aspect = window.innerWidth / window.innerHeight;
-    // const frustumSize = 5000; // Ensure this matches the initial frustum size
-
-    camera.left = frustumSize * aspect / -2;
-    camera.right = frustumSize * aspect / 2;
-    camera.top = frustumSize / 2;
-    camera.bottom = frustumSize / -2;
-    camera.updateProjectionMatrix();
-
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    render();
+function connectToPeer() {
+    const remoteId = remoteIdInput.value;
+    const call = peer.call(remoteId, localStream);
+    handleCall(call);
 }
 
-function render() {
-    renderer.render(scene, camera);
+function handleCall(call) {
+    call.on('stream', (stream) => {
+        remoteStream = stream;
+        remoteVideo.srcObject = stream;
+        disconnectButton.disabled = false;
+    });
+
+    call.on('close', () => {
+        remoteVideo.srcObject = null;
+        disconnectButton.disabled = true;
+    });
+
+    call.on('error', (err) => {
+        console.error('Call error:', err);
+    });
+}
+
+function disconnect() {
+    if (remoteStream) {
+        remoteVideo.srcObject = null;
+        disconnectButton.disabled = true;
+    }
 }
