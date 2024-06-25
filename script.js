@@ -2,7 +2,9 @@ const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
 const peerIdInput = document.getElementById('peerId');
 const callButton = document.getElementById('callButton');
-const statusDiv = document.getElementById('status'); // 获取状态提示元素
+const statusDiv = document.getElementById('status');
+const enableVideoCheckbox = document.getElementById('enableVideo');
+const enableAudioCheckbox = document.getElementById('enableAudio');
 
 const peer = new Peer();
 
@@ -13,7 +15,11 @@ peer.on('open', id => {
 
 peer.on('call', call => {
     statusDiv.innerText = 'Receiving a call...';
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    const mediaConstraints = {
+        video: enableVideoCheckbox.checked,
+        audio: enableAudioCheckbox.checked
+    };
+    navigator.mediaDevices.getUserMedia(mediaConstraints)
         .then(stream => {
             call.answer(stream);
             localVideo.srcObject = stream;
@@ -31,13 +37,21 @@ peer.on('call', call => {
 callButton.addEventListener('click', () => {
     const peerId = peerIdInput.value;
     statusDiv.innerText = `Calling ${peerId}...`;
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    const mediaConstraints = {
+        video: enableVideoCheckbox.checked,
+        audio: enableAudioCheckbox.checked
+    };
+    navigator.mediaDevices.getUserMedia(mediaConstraints)
         .then(stream => {
             const call = peer.call(peerId, stream);
             localVideo.srcObject = stream;
             call.on('stream', remoteStream => {
                 remoteVideo.srcObject = remoteStream;
                 statusDiv.innerText = 'Call connected!';
+            });
+            call.on('error', err => {
+                console.error('Call error:', err);
+                statusDiv.innerText = `Call error: ${err}`;
             });
         })
         .catch(err => {
