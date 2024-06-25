@@ -27,6 +27,7 @@ startCallButton.addEventListener('click', async () => {
 });
 
 callPeerButton.addEventListener('click', () => {
+    peer = new Peer();
     const peerId = peerIdInput.value;
     if (peerId) {
         var call = peer.call(peerId, localStream);
