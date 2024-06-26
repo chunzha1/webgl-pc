@@ -21,12 +21,8 @@
 
         const peer = new Peer();
 
-        // peer.on('open', () => {
-        //     statusElement.textContent = 'Connecting to camera...';
-        //     connectToCamera();
-        // });
-        peer.on('open', (id) => {
-            statusElement.textContent = `Connecting to camera... ID: ${id}`;
+        peer.on('open', () => {
+            statusElement.textContent = 'Connecting to camera...';
             connectToCamera();
         });
         
