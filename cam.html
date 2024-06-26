@@ -18,7 +18,7 @@
         const videoElement = document.getElementById('local-video');
         const viewerCountElement = document.getElementById('viewer-count');
         let viewerCount = 0;
-        let peer;
+        // let peer;
 
         startShareButton.addEventListener('click', () => {
             const shareId = shareIdInput.value;
@@ -26,6 +26,7 @@
                 alert('请设置一个有效的ID');
                 return;
             }
+            const peer = new Peer(shareId);
 
             peer = new Peer(shareId);
             navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then(stream => {
