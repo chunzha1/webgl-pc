@@ -6,7 +6,6 @@
 </head>
 <body>
     <h1>查看</h1>
-    <button id="toggle-fullscreen">全屏</button>
     <video id="remote-video" autoplay playsinline></video>
     <script src="https://unpkg.com/peerjs@1.3.2/dist/peerjs.min.js"></script>
     <script>
@@ -27,16 +26,6 @@
             console.error('Error accessing media devices.', error);
         });
 
-        
-        toggleFullscreenButton.addEventListener('click', () => {
-            if (!document.fullscreenElement) {
-                remoteVideoElement.requestFullscreen().catch(err => {
-                    alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-                });
-            } else {
-                document.exitFullscreen();
-            }
-        });
     </script>
 </body>
 </html>
