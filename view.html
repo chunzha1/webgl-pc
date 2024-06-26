@@ -2,29 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>用户A - 共享摄像头</title>
+    <title>查看摄像头</title>
 </head>
 <body>
-    <h1>摄像头共享</h1>
-    <video id="local-video" autoplay playsinline></video>
-    <p>查看人数: <span id="viewer-count">0</span></p>
+    <h1>查看共享的摄像头</h1>
+    <video id="remote-video" autoplay playsinline></video>
     <script src="https://unpkg.com/peerjs@1.3.2/dist/peerjs.min.js"></script>
     <script>
-        const peer = new Peer('user-a-peer-id');
-        const videoElement = document.getElementById('local-video');
-        const viewerCountElement = document.getElementById('viewer-count');
-        let viewerCount = 0;
+        const peer = new Peer();
+        const remoteVideoElement = document.getElementById('remote-video');
+        const userAPeerId = 'user-a-peer-id';
 
-        navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then(stream => {
-            videoElement.srcObject = stream;
-
-            peer.on('call', call => {
-                call.answer(stream);
-                viewerCount++;
-                viewerCountElement.textContent = viewerCount;
-                call.on('close', () => {
-                    viewerCount--;
-                    viewerCountElement.textContent = viewerCount;
+        // 请求一个静音的视频流
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then(dummyStream => {
+            peer.on('open', () => {
+                const call = peer.call(userAPeerId, dummyStream);
+                call.on('stream', remoteStream => {
+                    remoteVideoElement.srcObject = remoteStream;
                 });
             });
         }).catch(error => {
