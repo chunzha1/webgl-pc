@@ -2,38 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>查看摄像头</title>
+    <title>用户A - 共享摄像头</title>
 </head>
 <body>
-    <h1>查看共享的摄像头</h1>
-    <label for="viewer-id">输入共享ID: </label>
-    <input type="text" id="viewer-id" placeholder="输入ID">
-    <button id="start-view">开始查看</button>
-    <video id="remote-video" autoplay playsinline></video>
+    <h1>摄像头共享</h1>
+    <video id="local-video" autoplay playsinline></video>
+    <p>查看人数: <span id="viewer-count">0</span></p>
     <script src="https://unpkg.com/peerjs@1.3.2/dist/peerjs.min.js"></script>
     <script>
-        const startViewButton = document.getElementById('start-view');
-        const viewerIdInput = document.getElementById('viewer-id');
-        const remoteVideoElement = document.getElementById('remote-video');
-        const peer = new Peer();
+        const peer = new Peer('user-a-peer-id');
+        const videoElement = document.getElementById('local-video');
+        const viewerCountElement = document.getElementById('viewer-count');
+        let viewerCount = 0;
 
-        startViewButton.addEventListener('click', () => {
-            const userAPeerId = viewerIdInput.value;
-            if (!userAPeerId) {
-                alert('请输入有效的共享ID');
-                return;
-            }
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then(stream => {
+            videoElement.srcObject = stream;
 
-            navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then(dummyStream => {
-                peer.on('open', () => {
-                    const call = peer.call(userAPeerId, dummyStream);
-                    call.on('stream', remoteStream => {
-                        remoteVideoElement.srcObject = remoteStream;
-                    });
+            peer.on('call', call => {
+                call.answer(stream);
+                viewerCount++;
+                viewerCountElement.textContent = viewerCount;
+                call.on('close', () => {
+                    viewerCount--;
+                    viewerCountElement.textContent = viewerCount;
                 });
-            }).catch(error => {
-                console.error('Error accessing media devices.', error);
             });
+        }).catch(error => {
+            console.error('Error accessing media devices.', error);
         });
     </script>
 </body>
