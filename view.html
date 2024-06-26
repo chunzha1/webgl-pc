@@ -13,7 +13,8 @@
         const remoteVideoElement = document.getElementById('remote-video');
         const userAPeerId = 'user-a-peer-id';
 
-        navigator.mediaDevices.getUserMedia({ video: false, audio: false }).then(dummyStream => {
+        // 请求一个静音的视频流
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then(dummyStream => {
             peer.on('open', () => {
                 const call = peer.call(userAPeerId, dummyStream);
                 call.on('stream', remoteStream => {
