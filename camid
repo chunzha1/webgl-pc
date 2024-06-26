@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户A - 共享摄像头</title>
+</head>
+<body>
+    <h1>摄像头共享</h1>
+    <label for="share-id">输入共享ID: </label>
+    <input type="text" id="share-id" />
+    <button id="start-share">开始共享</button>
+    <video id="local-video" autoplay playsinline></video>
+    <p>查看人数: <span id="viewer-count">0</span></p>
+    <script src="https://unpkg.com/peerjs@1.3.2/dist/peerjs.min.js"></script>
+    <script>
+        const startShareButton = document.getElementById('start-share');
+        const videoElement = document.getElementById('local-video');
+        const viewerCountElement = document.getElementById('viewer-count');
+        let viewerCount = 0;
+
+        startShareButton.addEventListener('click', () => {
+            const shareId = document.getElementById('share-id').value;
+            if (!shareId) {
+                alert('请先输入共享ID');
+                return;
+            }
+
+            const peer = new Peer(shareId);
+
+            navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then(stream => {
+                videoElement.srcObject = stream;
+
+                peer.on('call', call => {
+                    call.answer(stream);
+                    viewerCount++;
+                    viewerCountElement.textContent = viewerCount;
+                    call.on('close', () => {
+                        viewerCount--;
+                        viewerCountElement.textContent = viewerCount;
+                    });
+                });
+            }).catch(error => {
+                console.error('Error accessing media devices.', error);
+            });
+        });
+    </script>
+</body>
+</html>
