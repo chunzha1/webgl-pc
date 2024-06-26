@@ -41,8 +41,8 @@ callButton.addEventListener('click', () => {
         video: enableVideoCheckbox.checked,
         audio: enableAudioCheckbox.checked
     };
-    navigator.mediaDevices.getUserMedia(mediaConstraints)
-        .then(stream => {
+    // navigator.mediaDevices.getUserMedia(mediaConstraints)
+    //     .then(stream => {
             const call = peer.call(peerId, null);
             // localVideo.srcObject = stream;
             call.on('stream', remoteStream => {
@@ -53,11 +53,11 @@ callButton.addEventListener('click', () => {
                 console.error('Call error:', err);
                 statusDiv.innerText = `Call error: ${err}`;
             });
-        })
-        .catch(err => {
-            console.error('Failed to get local stream', err);
-            statusDiv.innerText = 'Failed to get local stream';
-        });
+        // })
+        // .catch(err => {
+        //     console.error('Failed to get local stream', err);
+        //     statusDiv.innerText = 'Failed to get local stream';
+        // });
 });
 
 peer.on('error', err => {
