@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PeerJS Video Chat</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <h1>PeerJS Video Chat</h1>
+    <div>
+        <video id="localVideo" autoplay muted></video>
+        <video id="remoteVideo" autoplay></video>
+    </div>
+    <input type="text" id="peerId" placeholder="Enter Peer ID">
+    <div>
+        <label>
+            <input type="checkbox" id="enableVideo" checked> Enable Video
+        </label>
+        <label>
+            <input type="checkbox" id="enableAudio" checked> Enable Audio
+        </label>
+    </div>
+    <button id="callButton">Call</button>
+    <div id="status"></div>
+    <script src="https://unpkg.com/peerjs@1.3.2/dist/peerjs.min.js"></script>
+    <script src="./script2.js"></script>
+</body>
+</html>
