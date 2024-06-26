@@ -12,6 +12,7 @@
         const peer = new Peer();
         const remoteVideoElement = document.getElementById('remote-video');
         const userAPeerId = 'user-a-peer-id';
+        const toggleFullscreenButton = document.getElementById('toggle-fullscreen');
 
         // 请求一个静音的视频流
         navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then(dummyStream => {
@@ -23,6 +24,17 @@
             });
         }).catch(error => {
             console.error('Error accessing media devices.', error);
+        });
+
+        
+        toggleFullscreenButton.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                remoteVideoElement.requestFullscreen().catch(err => {
+                    alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
         });
     </script>
 </body>
