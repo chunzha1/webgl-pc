@@ -32,16 +32,21 @@
         });
 
         function connectToCamera() {
-            const call = peer.call(CAMERA_ID, null);
-            call.on('stream', (remoteStream) => {
-                remoteVideo.srcObject = remoteStream;
-                statusElement.textContent = 'Connected to camera';
-            });
-            call.on('error', (error) => {
-                console.error('Call error:', error);
-                statusElement.textContent = 'Error connecting to camera';
-            });
-        }
+                    const call = peer.call(CAMERA_ID, null);
+                    if (call) {
+                        call.on('stream', (remoteStream) => {
+                            remoteVideo.srcObject = remoteStream;
+                            statusElement.textContent = 'Connected to camera';
+                        });
+                        call.on('error', (error) => {
+                            console.error('Call error:', error);
+                            statusElement.textContent = 'Error connecting to camera';
+                        });
+                    } else {
+                        statusElement.textContent = 'Failed to make a call to the camera';
+                        console.error('Failed to make a call to the camera');
+                    }
+                }
     </script>
 </body>
 </html>
