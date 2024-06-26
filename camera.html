@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Camera</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        video { width: 100%; max-width: 600px; }
+    </style>
+</head>
+<body>
+    <h1>Network Camera</h1>
+    <video id="localVideo" autoplay muted></video>
+    <p id="status"></p>
+    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+    <script>
+        const localVideo = document.getElementById('localVideo');
+        const statusElement = document.getElementById('status');
+        const CAMERA_ID = '7dc6d98b-eebc-4059-89c5-deaae4dc3333'; // 固定的摄像头ID
+
+        const peer = new Peer(CAMERA_ID);
+
+        peer.on('open', (id) => {
+            statusElement.textContent = `Camera ready. ID: ${id}`;
+            startCamera();
+        });
+
+        peer.on('error', (error) => {
+            console.error('PeerJS error:', error);
+            statusElement.textContent = `Error: ${error.type}`;
+        });
+
+        function startCamera() {
+            navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+                .then((stream) => {
+                    localVideo.srcObject = stream;
+                    peer.on('call', (call) => {
+                        call.answer(stream);
+                        statusElement.textContent = 'Viewer connected';
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error accessing camera:', error);
+                    statusElement.textContent = 'Error accessing camera';
+                });
+        }
+    </script>
+</body>
+</html>
