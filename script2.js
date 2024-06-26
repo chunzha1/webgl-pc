@@ -12,21 +12,7 @@ peer.on('open', id => {
 
 peer.on('call', call => {
     statusDiv.innerText = 'Receiving a call...';
-    const mediaConstraints = {
-        video: false, // 设置为false，不再获取本地视频流
-        audio: false, // 设置为false，不再获取本地音频流
-    };
     call.answer(null); // 不再传递本地流
-    call.on('stream', remoteStream => {
-        remoteVideo.srcObject = remoteStream;
-        statusDiv.innerText = 'Call connected!';
-    });
-});
-
-callButton.addEventListener('click', () => {
-    const peerId = peerIdInput.value;
-    statusDiv.innerText = `Calling ${peerId}...`;
-    const call = peer.call(peerId, null); // 不再传递本地流
     call.on('stream', remoteStream => {
         remoteVideo.srcObject = remoteStream;
         statusDiv.innerText = 'Call connected!';
@@ -35,6 +21,35 @@ callButton.addEventListener('click', () => {
         console.error('Call error:', err);
         statusDiv.innerText = `Call error: ${err}`;
     });
+});
+
+callButton.addEventListener('click', () => {
+    const peerId = peerIdInput.value;
+    if (!peerId) {
+        statusDiv.innerText = 'Please enter a valid peer ID.';
+        return;
+    }
+
+    statusDiv.innerText = `Calling ${peerId}...`;
+    try {
+        const call = peer.call(peerId, null); // 不再传递本地流
+
+        if (call) {
+            call.on('stream', remoteStream => {
+                remoteVideo.srcObject = remoteStream;
+                statusDiv.innerText = 'Call connected!';
+            });
+            call.on('error', err => {
+                console.error('Call error:', err);
+                statusDiv.innerText = `Call error: ${err}`;
+            });
+        } else {
+            statusDiv.innerText = 'Failed to establish call. Call object is undefined.';
+        }
+    } catch (err) {
+        console.error('Call initiation error:', err);
+        statusDiv.innerText = `Call initiation error: ${err.message}`;
+    }
 });
 
 peer.on('error', err => {
