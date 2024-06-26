@@ -47,10 +47,8 @@ callButton.addEventListener('click', () => {
     console.log(`Attempting to call peer with ID: ${peerId}`);
 
     try {
-        // 创建一个空的媒体流对象
-        const emptyStream = new MediaStream();
-        const call = peer.call(peerId, emptyStream); // 传递空的媒体流
-        console.log(`start call`);
+        const emptyStream = getEmptyStream(); // 使用包含无效轨道的空媒体流对象
+        const call = peer.call(peerId, emptyStream); // 传递包含无效轨道的空媒体流
 
         if (call) {
             console.log('Call object created');
@@ -77,3 +75,15 @@ peer.on('error', err => {
     console.error('Peer error:', err);
     statusDiv.innerText = `Error: ${err}`;
 });
+
+function getEmptyStream() {
+    const emptyStream = new MediaStream();
+    const audioContext = new AudioContext();
+    const oscillator = audioContext.createOscillator();
+    const dst = audioContext.createMediaStreamDestination();
+    oscillator.connect(dst);
+    oscillator.start();
+    const track = dst.stream.getAudioTracks()[0];
+    emptyStream.addTrack(track);
+    return emptyStream;
+}
