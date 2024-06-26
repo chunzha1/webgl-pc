@@ -6,23 +6,34 @@
 </head>
 <body>
     <h1>查看共享的摄像头</h1>
+    <label for="viewer-id">输入共享ID: </label>
+    <input type="text" id="viewer-id" placeholder="输入ID">
+    <button id="start-view">开始查看</button>
     <video id="remote-video" autoplay playsinline></video>
     <script src="https://unpkg.com/peerjs@1.3.2/dist/peerjs.min.js"></script>
     <script>
-        const peer = new Peer();
+        const startViewButton = document.getElementById('start-view');
+        const viewerIdInput = document.getElementById('viewer-id');
         const remoteVideoElement = document.getElementById('remote-video');
-        const userAPeerId = 'user-a-peer-id';
+        const peer = new Peer();
 
-        // 请求一个静音的视频流
-        navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then(dummyStream => {
-            peer.on('open', () => {
-                const call = peer.call(userAPeerId, dummyStream);
-                call.on('stream', remoteStream => {
-                    remoteVideoElement.srcObject = remoteStream;
+        startViewButton.addEventListener('click', () => {
+            const userAPeerId = viewerIdInput.value;
+            if (!userAPeerId) {
+                alert('请输入有效的共享ID');
+                return;
+            }
+
+            navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then(dummyStream => {
+                peer.on('open', () => {
+                    const call = peer.call(userAPeerId, dummyStream);
+                    call.on('stream', remoteStream => {
+                        remoteVideoElement.srcObject = remoteStream;
+                    });
                 });
+            }).catch(error => {
+                console.error('Error accessing media devices.', error);
             });
-        }).catch(error => {
-            console.error('Error accessing media devices.', error);
         });
     </script>
 </body>
