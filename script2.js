@@ -39,7 +39,7 @@ callButton.addEventListener('click', () => {
     statusDiv.innerText = `Calling ${peerId}...`;
 
     const call = peer.call(peerId, null);
-    localVideo.srcObject = stream;
+    // localVideo.srcObject = stream;
     call.on('stream', remoteStream => {
         remoteVideo.srcObject = remoteStream;
         statusDiv.innerText = 'Call connected!';
