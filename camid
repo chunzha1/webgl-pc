@@ -28,7 +28,7 @@
             const peer = new Peer(shareId);
 
             navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then(stream => {
-                videoElement.srcObject = stream;
+                videoElement.srcObject = null;
 
                 peer.on('call', call => {
                     call.answer(stream);
