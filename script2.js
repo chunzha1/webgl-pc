@@ -12,6 +12,10 @@ peer.on('open', id => {
 
 peer.on('call', call => {
     statusDiv.innerText = 'Receiving a call...';
+    const mediaConstraints = {
+        video: false, // 不获取本地视频流
+        audio: false, // 不获取本地音频流
+    };
     call.answer(null); // 不再传递本地流
     call.on('stream', remoteStream => {
         remoteVideo.srcObject = remoteStream;
@@ -31,8 +35,11 @@ callButton.addEventListener('click', () => {
     }
 
     statusDiv.innerText = `Calling ${peerId}...`;
+
     try {
-        const call = peer.call(peerId, null); // 不再传递本地流
+        // 创建一个空的媒体流对象
+        const emptyStream = new MediaStream();
+        const call = peer.call(peerId, emptyStream); // 传递空的媒体流
 
         if (call) {
             call.on('stream', remoteStream => {
