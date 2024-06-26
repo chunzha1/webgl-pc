@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>查看摄像头</title>
+</head>
+<body>
+    <h1>查看共享的摄像头</h1>
+    <label for="viewer-id">输入共享ID: </label>
+    <input type="text" id="viewer-id" />
+    <button id="start-view">开始查看</button>
+    <video id="remote-video" autoplay playsinline></video>
+    <script src=""></script>
+    <script>
+        const startViewButton = document.getElementById('start-view');
+        const remoteVideoElement = document.getElementById('remote-video');
+
+        startViewButton.addEventListener('click', () => {
+            const viewerId = document.getElementById('viewer-id').value;
+            if (!viewerId) {
+                alert('请先输入共享ID');
+                return;
+            }
+
+            const peer = new Peer();
+            
+            peer.on('open', () => {
+                // 创建一个空的 MediaStream 对象
+                const emptyStream = new MediaStream();
+                const call = peer.call(viewerId, emptyStream);
+                call.on('stream', remoteStream => {
+                    remoteVideoElement.srcObject = remoteStream;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
