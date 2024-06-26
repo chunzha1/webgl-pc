@@ -3,6 +3,9 @@ const remoteVideo = document.getElementById('remoteVideo');
 const peerIdInput = document.getElementById('peerId');
 const callButton = document.getElementById('callButton');
 const statusDiv = document.getElementById('status');
+const enableVideoCheckbox = document.getElementById('enableVideo');
+const enableAudioCheckbox = document.getElementById('enableAudio');
+
 const peer = new Peer();
 
 peer.on('open', id => {
@@ -13,18 +16,22 @@ peer.on('open', id => {
 peer.on('call', call => {
     statusDiv.innerText = 'Receiving a call...';
     const mediaConstraints = {
-        video: false, // 不获取本地视频流
-        audio: false, // 不获取本地音频流
+        video: enableVideoCheckbox.checked,
+        audio: enableAudioCheckbox.checked
     };
-    call.answer(null); // 不再传递本地流
-    call.on('stream', remoteStream => {
-        remoteVideo.srcObject = remoteStream;
-        statusDiv.innerText = 'Call connected!';
-    });
-    call.on('error', err => {
-        console.error('Call error:', err);
-        statusDiv.innerText = `Call error: ${err}`;
-    });
+    navigator.mediaDevices.getUserMedia(mediaConstraints)
+        .then(stream => {
+            call.answer(stream);
+            localVideo.srcObject = stream;
+            call.on('stream', remoteStream => {
+                remoteVideo.srcObject = remoteStream;
+                statusDiv.innerText = 'Call connected!';
+            });
+        })
+        .catch(err => {
+            console.error('Failed to get local stream', err);
+            statusDiv.innerText = 'Failed to get local stream';
+        });
 });
 
 callButton.addEventListener('click', () => {
