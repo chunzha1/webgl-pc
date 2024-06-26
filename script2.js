@@ -14,6 +14,7 @@ peer.on('open', id => {
 });
 
 peer.on('call', call => {
+    console.log('Receiving a call...');
     statusDiv.innerText = 'Receiving a call...';
     const mediaConstraints = {
         video: enableVideoCheckbox.checked,
@@ -24,6 +25,7 @@ peer.on('call', call => {
             call.answer(stream);
             localVideo.srcObject = stream;
             call.on('stream', remoteStream => {
+                console.log('Stream received from remote peer');
                 remoteVideo.srcObject = remoteStream;
                 statusDiv.innerText = 'Call connected!';
             });
@@ -42,14 +44,18 @@ callButton.addEventListener('click', () => {
     }
 
     statusDiv.innerText = `Calling ${peerId}...`;
+    console.log(`Attempting to call peer with ID: ${peerId}`);
 
     try {
         // 创建一个空的媒体流对象
         const emptyStream = new MediaStream();
         const call = peer.call(peerId, emptyStream); // 传递空的媒体流
+        console.log(`start call`);
 
         if (call) {
+            console.log('Call object created');
             call.on('stream', remoteStream => {
+                console.log('Stream received from remote peer');
                 remoteVideo.srcObject = remoteStream;
                 statusDiv.innerText = 'Call connected!';
             });
@@ -58,6 +64,7 @@ callButton.addEventListener('click', () => {
                 statusDiv.innerText = `Call error: ${err}`;
             });
         } else {
+            console.log('Call object is undefined');
             statusDiv.innerText = 'Failed to establish call. Call object is undefined.';
         }
     } catch (err) {
