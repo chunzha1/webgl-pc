@@ -13,11 +13,15 @@
         const remoteVideoElement = document.getElementById('remote-video');
         const userAPeerId = 'user-a-peer-id';
 
-        peer.on('open', () => {
-            const call = peer.call(userAPeerId, null);
-            call.on('stream', remoteStream => {
-                remoteVideoElement.srcObject = remoteStream;
+        navigator.mediaDevices.getUserMedia({ video: false, audio: false }).then(dummyStream => {
+            peer.on('open', () => {
+                const call = peer.call(userAPeerId, dummyStream);
+                call.on('stream', remoteStream => {
+                    remoteVideoElement.srcObject = remoteStream;
+                });
             });
+        }).catch(error => {
+            console.error('Error accessing media devices.', error);
         });
     </script>
 </body>
