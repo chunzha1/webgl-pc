@@ -33,7 +33,7 @@ scene.add(light);
 // 控制器
 let controls;
 if ('DeviceOrientationEvent' in window) {
-  controls = new DeviceOrientationControls(camera);
+  controls = new THREE.DeviceOrientationControls(camera);
 } else {
   controls = new THREE.PointerLockControls(camera, document.body);
 }
