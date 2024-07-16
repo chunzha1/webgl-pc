@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>射击小游戏</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        touch-action: none;
+      }
+      #score {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        color: white;
+        font-size: 24px;
+      }
+      #joystick {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+      }
+      #shootButton {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background-color: red;
+        color: white;
+        border: none;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="score">分值: 0</div>
+    <div id="joystick"></div>
+    <button id="shootButton">射击</button>
+    
+    <script src="https://gcore.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://gcore.jsdelivr.net/npm/three@0.132.2/examples/js/controls/DeviceOrientationControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.9.0/nipplejs.min.js"></script>
+    <script src="./game-mobile.js"></script>
+  </body>
+</html>
