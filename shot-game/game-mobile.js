@@ -16,6 +16,8 @@ function adjustWindowSize() {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(window.devicePixelRatio * 0.7);
+  document.body.appendChild(renderer.domElement);
+
 }
 
 // 创建地面
@@ -52,7 +54,6 @@ init();
 
 // 初始化
 function init() {
-  document.body.appendChild(renderer.domElement);
 
   for (let i = 0; i < 20; i++) {
     createTarget();
