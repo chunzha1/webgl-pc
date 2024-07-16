@@ -71,7 +71,7 @@ function createTarget() {
     }
   }
 
-  target.velocity = new THREE.Vector3((Math.random() - 0.5) * 0.1, 0, (Math.random() - 0.5) * 0.1);
+  target.velocity = new THREE.Vector3((Math.random() - 0.5) * 0.1, (Math.random() - 0.5) * 0.1), (Math.random() - 0.5) * 0.1);
   targets.push(target);
   scene.add(target);
 }
@@ -169,6 +169,7 @@ function updateTargets() {
     target.position.add(target.velocity);
     // 简单的边界处理，使目标物在地面内移动
     if (target.position.x > 50 || target.position.x < -50) target.velocity.x = -target.velocity.x;
+    if (target.position.y > 50 || target.position.y < -50) target.velocity.y = -target.velocity.y;
     if (target.position.z > 50 || target.position.z < -50) target.velocity.z = -target.velocity.z;
   });
 }
