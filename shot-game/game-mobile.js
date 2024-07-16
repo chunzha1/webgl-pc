@@ -1,6 +1,6 @@
-import * as THREE from 'three';
-import { DeviceOrientationControls } from 'three/examples/jsm/controls/DeviceOrientationControls.js';
-import nipplejs from 'nipplejs';
+// import * as THREE from 'three';
+// import { DeviceOrientationControls } from 'three/examples/jsm/controls/DeviceOrientationControls.js';
+// import nipplejs from 'nipplejs';
 
 // 初始化Three.js
 const renderer = new THREE.WebGLRenderer();
