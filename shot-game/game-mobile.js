@@ -118,7 +118,7 @@ function createTarget() {
 function animate() {
   requestAnimationFrame(animate);
 
-  if (controls instanceof DeviceOrientationControls) {
+  if (controls instanceof THREE.DeviceOrientationControls) {
     controls.update();
   }
 
