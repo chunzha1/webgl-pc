@@ -1,3 +1,7 @@
+import * as THREE from 'three';
+import { DeviceOrientationControls } from 'three/examples/jsm/controls/DeviceOrientationControls.js';
+import nipplejs from 'nipplejs';
+
 // 初始化Three.js
 const renderer = new THREE.WebGLRenderer();
 const scene = new THREE.Scene();
@@ -9,13 +13,13 @@ window.addEventListener("resize", adjustWindowSize);
 
 function adjustWindowSize() {
   camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
+  renderer.setPixelRatio(window.devicePixelRatio * 0.7);
 }
 
 // 创建地面
 const floorGeometry = new THREE.PlaneGeometry(100, 100);
-// const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x808080, side: THREE.DoubleSide });
 const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, side: THREE.DoubleSide });
 const floor = new THREE.Mesh(floorGeometry, floorMaterial);
 floor.rotation.x = -Math.PI / 2;
@@ -26,8 +30,13 @@ const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(5, 10, 7.5);
 scene.add(light);
 
-const controls = new THREE.PointerLockControls(camera, document.body);
-document.addEventListener("click", () => controls.lock());
+// 控制器
+let controls;
+if ('DeviceOrientationEvent' in window) {
+  controls = new DeviceOrientationControls(camera);
+} else {
+  controls = new THREE.PointerLockControls(camera, document.body);
+}
 
 // 子弹
 let bullets = [];
@@ -43,9 +52,40 @@ init();
 
 // 初始化
 function init() {
+  document.body.appendChild(renderer.domElement);
+
   for (let i = 0; i < 20; i++) {
     createTarget();
   }
+
+  // 创建虚拟摇杆
+  const joystick = nipplejs.create({
+    zone: document.getElementById('joystick'),
+    mode: 'static',
+    position: { left: '50px', bottom: '50px' },
+    color: 'red',
+    size: 100
+  });
+
+  joystick.on('move', (evt, data) => {
+    move.forward = data.vector.y > 0;
+    move.backward = data.vector.y < 0;
+    move.left = data.vector.x < 0;
+    move.right = data.vector.x > 0;
+  });
+
+  joystick.on('end', () => {
+    move.forward = move.backward = move.left = move.right = false;
+  });
+
+  // 添加射击按钮事件
+  document.getElementById('shootButton').addEventListener('touchstart', shoot);
+
+  // 添加触摸事件监听器
+  document.addEventListener('touchstart', onTouchStart, false);
+  document.addEventListener('touchmove', onTouchMove, false);
+  document.addEventListener('touchend', onTouchEnd, false);
+
   animate();
 }
 
@@ -64,7 +104,6 @@ function createTarget() {
     for (let i = 0; i < targets.length; i++) {
       const otherTarget = targets[i];
       if (target.position.distanceTo(otherTarget.position) < 5) {
-        // 检查距离
         validPosition = false;
         break;
       }
@@ -78,6 +117,10 @@ function createTarget() {
 
 function animate() {
   requestAnimationFrame(animate);
+
+  if (controls instanceof DeviceOrientationControls) {
+    controls.update();
+  }
 
   updatePlayer();
   updateBullets();
@@ -93,9 +136,9 @@ function shoot() {
   const bulletGeometry = new THREE.SphereGeometry(0.1, 8, 8);
   const bulletMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
   const bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
-  bullet.position.copy(controls.getObject().position);
+  bullet.position.copy(camera.position);
   bullet.velocity = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
-  bullet.gravity = new THREE.Vector3(0, -0.001, 0); // 添加重力
+  bullet.gravity = new THREE.Vector3(0, -0.001, 0);
   bullets.push(bullet);
   scene.add(bullet);
 }
@@ -113,13 +156,15 @@ function checkHit() {
         bullets.splice(bIndex, 1);
         score += 10;
         scoreElement.innerText = `分数: ${score}`;
-        createTarget(); // 创建新的目标物
+        createTarget();
       }
     });
   });
 }
+
 // 预加载爆炸纹理
 const explosionTexture = new THREE.TextureLoader().load("./expose.jpg");
+
 // 爆炸效果
 function createExplosion(position) {
   const explosionMaterial = new THREE.PointsMaterial({
@@ -153,7 +198,7 @@ function createExplosion(position) {
 // 更新子弹位置
 function updateBullets() {
   bullets = bullets.filter((bullet) => {
-    bullet.velocity.add(bullet.gravity); // 更新速度
+    bullet.velocity.add(bullet.gravity);
     bullet.position.add(bullet.velocity);
     if (bullet.position.length() >= 100) {
       scene.remove(bullet);
@@ -167,7 +212,6 @@ function updateBullets() {
 function updateTargets() {
   targets.forEach((target) => {
     target.position.add(target.velocity);
-    // 简单的边界处理，使目标物在地面内移动
     if (target.position.x > 50 || target.position.x < -50) target.velocity.x = -target.velocity.x;
     if (target.position.z > 50 || target.position.z < -50) target.velocity.z = -target.velocity.z;
   });
@@ -177,16 +221,28 @@ function updateTargets() {
 function updatePlayer() {
   const speed = 0.1;
   const direction = new THREE.Vector3();
-  if (move.forward) direction.z += speed;
-  if (move.backward) direction.z -= speed;
+  if (move.forward) direction.z -= speed;
+  if (move.backward) direction.z += speed;
   if (move.left) direction.x -= speed;
   if (move.right) direction.x += speed;
 
-  controls.moveRight(direction.x);
-  controls.moveForward(direction.z);
+  camera.position.add(direction.applyQuaternion(camera.quaternion));
 }
 
-// 处理四个方向键和空格键按下事件
+// 触摸事件处理
+function onTouchStart(event) {
+  // 可以在这里添加触摸开始的逻辑
+}
+
+function onTouchMove(event) {
+  // 可以在这里添加触摸移动的逻辑
+}
+
+function onTouchEnd(event) {
+  // 可以在这里添加触摸结束的逻辑
+}
+
+// 处理方向键和空格键按下事件（保留键盘控制，以便在桌面设备上测试）
 const onKeyDown = function (event) {
   switch (event.code) {
     case "ArrowUp":
@@ -207,7 +263,7 @@ const onKeyDown = function (event) {
   }
 };
 
-// 处理四个方向键弹起事件
+// 处理方向键弹起事件
 const onKeyUp = function (event) {
   switch (event.code) {
     case "ArrowUp":
