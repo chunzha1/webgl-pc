@@ -350,6 +350,6 @@ const onKeyUp = function (event) {
 
 document.addEventListener("keydown", onKeyDown);
 document.addEventListener("keyup", onKeyUp);
-document.addEventListener('touchstart', onTouchStart, false);
-document.addEventListener('touchmove', onTouchMove, false);
-document.addEventListener('touchend', onTouchEnd, false);
+// document.addEventListener('touchstart', onTouchStart, false);
+// document.addEventListener('touchmove', onTouchMove, false);
+// document.addEventListener('touchend', onTouchEnd, false);
