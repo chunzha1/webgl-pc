@@ -115,7 +115,7 @@ function createTarget() {
     }
   }
 
-  target.velocity = new THREE.Vector3((Math.random() - 0.5) * 0.15, (Math.random() - 0.5) *0* 0.15, (Math.random() - 0.5) * 0.15);
+  target.velocity = new THREE.Vector3((Math.random() - 0.5) * 0.15, (Math.random() - 0.5) * 0.15, (Math.random() - 0.5) * 0.15);
   targets.push(target);
   scene.add(target);
 }
