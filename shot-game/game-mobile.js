@@ -308,6 +308,18 @@ function updatePlayer() {
 //   isTouching = false;
 // }
 
+// 触摸事件处理
+function onTouchStart(event) {
+// 可以在这里添加触摸开始的逻辑
+}
+
+function onTouchMove(event) {
+// 可以在这里添加触摸移动的逻辑
+}
+
+function onTouchEnd(event) {
+// 可以在这里添加触摸结束的逻辑
+}
 
 // 处理方向键和空格键按下事件（保留键盘控制，以便在桌面设备上测试）
 const onKeyDown = function (event) {
