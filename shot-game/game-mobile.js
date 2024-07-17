@@ -70,12 +70,13 @@ function init() {
     size: 100
   });
 
-  joystick.on('move', (evt, data) => {
-    move.forward = data.vector.y > 0;
-    move.backward = data.vector.y < 0;
-    move.left = data.vector.x < 0;
-    move.right = data.vector.x > 0;
-  });
+joystick.on('move', (evt, data) => {
+    const deadzone = 0.2; // 设置一个死区
+    move.forward = data.vector.y > deadzone;
+    move.backward = data.vector.y < -deadzone;
+    move.left = data.vector.x < -deadzone;
+    move.right = data.vector.x > deadzone;
+});
 
   joystick.on('end', () => {
     move.forward = move.backward = move.left = move.right = false;
