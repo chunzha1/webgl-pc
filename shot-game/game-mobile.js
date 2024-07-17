@@ -269,18 +269,58 @@ function updatePlayer() {
   camera.position.add(direction.applyQuaternion(camera.quaternion));
 }
 
-// 触摸事件处理
+// // 触摸事件处理
+// function onTouchStart(event) {
+//   // 可以在这里添加触摸开始的逻辑
+// }
+
+// function onTouchMove(event) {
+//   // 可以在这里添加触摸移动的逻辑
+// }
+
+// function onTouchEnd(event) {
+//   // 可以在这里添加触摸结束的逻辑
+// }
+
+let touchStartX = 0;
+let touchStartY = 0;
+let isTouching = false;
+
 function onTouchStart(event) {
-  // 可以在这里添加触摸开始的逻辑
+  if (event.touches.length === 1) {
+    touchStartX = event.touches[0].pageX;
+    touchStartY = event.touches[0].pageY;
+    isTouching = true;
+  }
 }
 
 function onTouchMove(event) {
-  // 可以在这里添加触摸移动的逻辑
+  if (isTouching && event.touches.length === 1) {
+    const touchEndX = event.touches[0].pageX;
+    const touchEndY = event.touches[0].pageY;
+    const dx = touchEndX - touchStartX;
+    const dy = touchEndY - touchStartY;
+
+    // 调整灵敏度
+    const sensitivity = 0.002;
+
+    // 更新相机旋转
+    camera.rotation.y -= dx * sensitivity;
+    camera.rotation.x -= dy * sensitivity;
+
+    // 限制垂直旋转
+    camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
+
+    // 更新触摸起始点
+    touchStartX = touchEndX;
+    touchStartY = touchEndY;
+  }
 }
 
 function onTouchEnd(event) {
-  // 可以在这里添加触摸结束的逻辑
+  isTouching = false;
 }
+
 
 // 处理方向键和空格键按下事件（保留键盘控制，以便在桌面设备上测试）
 const onKeyDown = function (event) {
