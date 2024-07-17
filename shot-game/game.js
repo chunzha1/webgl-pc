@@ -144,11 +144,47 @@ function createExplosion(position) {
 
   const explosion = new THREE.Points(explosionGeometry, explosionMaterial);
   scene.add(explosion);
+  
+// 新增：创建一个平面来显示shoot.jpg
+  const shootPlaneGeometry = new THREE.PlaneGeometry(2, 2); // 调整大小
+  const shootPlaneMaterial = new THREE.MeshBasicMaterial({
+    map: explosionTexture,
+    transparent: true,
+    opacity: 0,
+  });
+  const shootPlane = new THREE.Mesh(shootPlaneGeometry, shootPlaneMaterial);
+  shootPlane.position.copy(position);
+  shootPlane.lookAt(camera.position); // 使平面始终面向相机
+  scene.add(shootPlane);
 
+  // 移除爆炸效果，显示shoot.jpg，然后移除shoot.jpg
   setTimeout(() => {
     scene.remove(explosion);
+  // 显示shoot.jpg
+    shootPlaneMaterial.opacity = 1;
+
+    // 在短暂显示后淡出并移除shoot.jpg
+    setTimeout(() => {
+      const fadeOutDuration = 500; // 淡出时间（毫秒）
+      const startTime = Date.now();
+
+      function fadeOut() {
+        const elapsedTime = Date.now() - startTime;
+        const progress = Math.min(elapsedTime / fadeOutDuration, 1);
+        shootPlaneMaterial.opacity = 1 - progress;
+
+        if (progress < 1) {
+          requestAnimationFrame(fadeOut);
+        } else {
+          scene.remove(shootPlane);
+        }
+      }
+
+      fadeOut();
+    }, 200); // shoot.jpg 显示时间（毫秒）
   }, 100);
 }
+
 
 // 更新子弹位置
 function updateBullets() {
