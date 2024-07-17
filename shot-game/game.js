@@ -146,7 +146,7 @@ function createExplosion(position) {
   scene.add(explosion);
   
 // 新增：创建一个平面来显示shoot.jpg
-  const shootPlaneGeometry = new THREE.PlaneGeometry(2, 2); // 调整大小
+  const shootPlaneGeometry = new THREE.PlaneGeometry(4, 4); // 调整大小
   const shootPlaneMaterial = new THREE.MeshBasicMaterial({
     map: explosionTexture,
     transparent: true,
