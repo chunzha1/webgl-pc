@@ -119,7 +119,7 @@ function checkHit() {
   });
 }
 // 预加载爆炸纹理
-const explosionTexture = new THREE.TextureLoader().load("./expose.jpg");
+const explosionTexture = new THREE.TextureLoader().load("./shoot.jpg");
 // 爆炸效果
 function createExplosion(position) {
   const explosionMaterial = new THREE.PointsMaterial({
