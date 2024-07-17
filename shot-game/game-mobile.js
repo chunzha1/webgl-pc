@@ -269,44 +269,44 @@ function updatePlayer() {
   camera.position.add(direction.applyQuaternion(camera.quaternion));
 }
 
-let touchStartX = 0;
-let touchStartY = 0;
-let isTouching = false;
+// let touchStartX = 0;
+// let touchStartY = 0;
+// let isTouching = false;
 
-function onTouchStart(event) {
-  if (event.touches.length === 1) {
-    touchStartX = event.touches[0].pageX;
-    touchStartY = event.touches[0].pageY;
-    isTouching = true;
-  }
-}
+// function onTouchStart(event) {
+//   if (event.touches.length === 1) {
+//     touchStartX = event.touches[0].pageX;
+//     touchStartY = event.touches[0].pageY;
+//     isTouching = true;
+//   }
+// }
 
-function onTouchMove(event) {
-  if (isTouching && event.touches.length === 1) {
-    const touchEndX = event.touches[0].pageX;
-    const touchEndY = event.touches[0].pageY;
-    const dx = touchEndX - touchStartX;
-    const dy = touchEndY - touchStartY;
+// function onTouchMove(event) {
+//   if (isTouching && event.touches.length === 1) {
+//     const touchEndX = event.touches[0].pageX;
+//     const touchEndY = event.touches[0].pageY;
+//     const dx = touchEndX - touchStartX;
+//     const dy = touchEndY - touchStartY;
 
-    // 调整灵敏度
-    const sensitivity = 0.002;
+//     // 调整灵敏度
+//     const sensitivity = 0.002;
 
-    // 更新相机旋转
-    camera.rotation.y -= dx * sensitivity;
-    camera.rotation.x -= dy * sensitivity;
+//     // 更新相机旋转
+//     camera.rotation.y -= dx * sensitivity;
+//     camera.rotation.x -= dy * sensitivity;
 
-    // 限制垂直旋转
-    camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
+//     // 限制垂直旋转
+//     camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
 
-    // 更新触摸起始点
-    touchStartX = touchEndX;
-    touchStartY = touchEndY;
-  }
-}
+//     // 更新触摸起始点
+//     touchStartX = touchEndX;
+//     touchStartY = touchEndY;
+//   }
+// }
 
-function onTouchEnd(event) {
-  isTouching = false;
-}
+// function onTouchEnd(event) {
+//   isTouching = false;
+// }
 
 
 // 处理方向键和空格键按下事件（保留键盘控制，以便在桌面设备上测试）
@@ -350,6 +350,6 @@ const onKeyUp = function (event) {
 
 document.addEventListener("keydown", onKeyDown);
 document.addEventListener("keyup", onKeyUp);
-document.addEventListener('touchstart', onTouchStart, false);
-document.addEventListener('touchmove', onTouchMove, false);
-document.addEventListener('touchend', onTouchEnd, false);
+// document.addEventListener('touchstart', onTouchStart, false);
+// document.addEventListener('touchmove', onTouchMove, false);
+// document.addEventListener('touchend', onTouchEnd, false);
