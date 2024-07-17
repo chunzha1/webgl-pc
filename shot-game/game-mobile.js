@@ -73,8 +73,8 @@ function init() {
 
 joystick.on('move', (evt, data) => {
     const deadzone = 0.2; // 设置一个死区
-    move.forward = data.vector.y > deadzone;
-    move.backward = data.vector.y < -deadzone;
+    move.forward = data.vector.z > deadzone;
+    move.backward = data.vector.z < -deadzone;
     move.left = data.vector.x < -deadzone;
     move.right = data.vector.x > deadzone;
 });
