@@ -104,7 +104,7 @@ function createTarget() {
 
   let validPosition = false;
   while (!validPosition) {
-    target.position.set(Math.random() * 100 - 50, -1, Math.random() * 100 - 50);
+    target.position.set(Math.random() * 100 - 50, -50, Math.random() * 100 - 50);
     validPosition = true;
     for (let i = 0; i < targets.length; i++) {
       const otherTarget = targets[i];
