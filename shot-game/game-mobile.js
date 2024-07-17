@@ -57,7 +57,7 @@ init();
 // 初始化
 function init() {
 
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 30; i++) {
     createTarget();
   }
 
@@ -114,7 +114,7 @@ function createTarget() {
     }
   }
 
-  target.velocity = new THREE.Vector3((Math.random() - 0.5) * 0.1, (Math.random() - 0.5) * 0.1, (Math.random() - 0.5) * 0.1);
+  target.velocity = new THREE.Vector3((Math.random() - 0.5) * 0.15, (Math.random() - 0.5) * 0.15, (Math.random() - 0.5) * 0.05);
   targets.push(target);
   scene.add(target);
 }
