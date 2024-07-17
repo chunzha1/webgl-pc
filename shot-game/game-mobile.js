@@ -24,7 +24,7 @@ function adjustWindowSize() {
 
 // 创建地面
 const floorGeometry = new THREE.PlaneGeometry(100, 100);
-const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, side: THREE.DoubleSide });
+const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide });
 const floor = new THREE.Mesh(floorGeometry, floorMaterial);
 floor.rotation.x = -Math.PI / 2;
 scene.add(floor);
@@ -216,6 +216,7 @@ function updateTargets() {
   targets.forEach((target) => {
     target.position.add(target.velocity);
     if (target.position.x > 50 || target.position.x < -50) target.velocity.x = -target.velocity.x;
+    if (target.position.y > 50 || target.position.y < -50) target.velocity.y = -target.velocity.y;
     if (target.position.z > 50 || target.position.z < -50) target.velocity.z = -target.velocity.z;
   });
 }
