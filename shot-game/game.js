@@ -214,8 +214,8 @@ function updateTargets() {
 function updatePlayer() {
   const speed = 0.1;
   const direction = new THREE.Vector3();
-  if (move.forward) direction.z += speed;
-  if (move.backward) direction.z -= speed;
+  if (move.forward) direction.y -= speed;
+  if (move.backward) direction.y += speed;
   if (move.left) direction.x -= speed;
   if (move.right) direction.x += speed;
 
