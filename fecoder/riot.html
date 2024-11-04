@@ -72,7 +72,7 @@
           return{positions,minX,maxX,minY,maxY}}
         async function init(){
           particlesArray=[];
-          const svgPaths=await loadSVG('https://fecoder-pic-1302080640.cos.ap-nanjing.myqcloud.com/Riot_Games_2022.svg');
+          const svgPaths=await loadSVG('https://pcd.chunzha.tech/fecoder/riot.svg');
           let allPositions=[];
           let minX=canvas.width,maxX=0,minY=canvas.height,maxY=0;
           svgPaths.forEach((pathData)=>{const{positions,minX:pathMinX,maxX:pathMaxX,minY:pathMinY,maxY:pathMaxY,}=getParticlePositionsFromPathData(pathData);
