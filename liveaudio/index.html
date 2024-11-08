@@ -3,7 +3,8 @@
     <head>
         <meta charset="UTF-8" />
         <title>HLS 音频流播放器</title>
-        <script src="https://gcore.jsdelivr.net/npm/hls.js@latest"></script>
+        <script src="http://gcore.jsdelivr.net/npm/hls.js@latest"></script>
+        <!-- 注意：这里使用 HTTP 版本的 hls.js -->
         <style>
             .player-container {
                 margin: 20px;
@@ -37,9 +38,6 @@
             button:hover {
                 background-color: #45a049;
             }
-            button:active {
-                background-color: #3d8b40;
-            }
         </style>
     </head>
     <body>
@@ -53,7 +51,7 @@
         </div>
 
         <script>
-            // 配置服务器地址
+            // 确保使用 HTTP URL
             const SERVER_URL = "http://ip.chunzha.tech:1935";
             const audio = document.getElementById("audio");
             const status = document.getElementById("status");
@@ -111,18 +109,6 @@
                             }
                         }
                     });
-                } else if (audio.canPlayType("application/vnd.apple.mpegurl")) {
-                    // 对于原生支持 HLS 的浏览器（如 Safari）
-                    audio.src = streamUrl;
-                    audio.addEventListener("loadedmetadata", function () {
-                        status.textContent = "使用原生 HLS 播放...";
-                        audio.play().catch(function (error) {
-                            status.textContent = "播放失败: " + error.message;
-                        });
-                    });
-                } else {
-                    // 不支持 HLS 的浏览器
-                    status.textContent = "您的浏览器不支持 HLS";
                 }
             }
 
@@ -134,7 +120,7 @@
                     const data = await response.json();
                     if (data.status === "success") {
                         status.textContent = "正在启动流...";
-                        setTimeout(initPlayer, 2000); // 给FFmpeg一些启动时间
+                        setTimeout(initPlayer, 2000);
                     } else {
                         status.textContent = data.message;
                     }
@@ -196,9 +182,6 @@
                     "播放错误: " +
                     (audio.error ? audio.error.message : "未知错误");
             });
-
-            // 页面加载完成后检查流状态
-            window.addEventListener("load", checkStreamStatus);
         </script>
     </body>
 </html>
