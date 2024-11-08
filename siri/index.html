@@ -33,15 +33,11 @@
 <body>
     <div class="container">
         <h2>Text to Speech Converter</h2>
-        <!-- 如果有 <form> 元素，将其移除或避免包裹下面的元素 -->
-        <!-- <form id="ttsForm"> -->
-            <textarea id="text" rows="4" placeholder="Enter text to convert..."></textarea>
-            <div class="button-group">
-                <!-- 确保按钮的类型设置为 type="button" -->
-                <button type="button" id="convertBtn">Convert to Speech</button>
-                <button type="button" id="downloadBtn" disabled>Download Audio</button>
-            </div>
-        <!-- </form> -->
+        <textarea id="text" rows="4" placeholder="Enter text to convert..."></textarea>
+        <div class="button-group">
+            <button type="button" id="convertBtn">Convert to Speech</button>
+            <button type="button" id="downloadBtn" disabled>Download Audio</button>
+        </div>
         <div id="status"></div>
         <audio id="audio" controls style="display: none;"></audio>
     </div>
@@ -53,7 +49,6 @@
         const statusDiv = document.getElementById('status');
         const audioPlayer = document.getElementById('audio');
 
-        // 修改 convertToSpeech 函数，接受事件参数 e，并调用 e.preventDefault()
         async function convertToSpeech(e) {
             e.preventDefault(); // 阻止默认行为，防止页面刷新
 
@@ -103,7 +98,6 @@
             }
         }
 
-        // 修改 downloadAudio 函数，接受事件参数 e，并调用 e.preventDefault()
         function downloadAudio(e) {
             e.preventDefault(); // 阻止默认行为，防止页面刷新
 
@@ -120,7 +114,6 @@
             document.body.removeChild(a);
         }
 
-        // 确保在添加事件监听器时，函数接受事件参数
         convertBtn.addEventListener('click', convertToSpeech);
         downloadBtn.addEventListener('click', downloadAudio);
     </script>
