@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Text to Speech</title>
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .button-group {
+            margin: 10px 0;
+        }
+        button {
+            padding: 8px 16px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        textarea {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        #status {
+            margin: 10px 0;
+            color: #666;
+        }
+        .loading {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Text to Speech Converter</h2>
+        <!-- 如果有 <form> 元素，将其移除或避免包裹下面的元素 -->
+        <!-- <form id="ttsForm"> -->
+            <textarea id="text" rows="4" placeholder="Enter text to convert..."></textarea>
+            <div class="button-group">
+                <!-- 确保按钮的类型设置为 type="button" -->
+                <button type="button" id="convertBtn">Convert to Speech</button>
+                <button type="button" id="downloadBtn" disabled>Download Audio</button>
+            </div>
+        <!-- </form> -->
+        <div id="status"></div>
+        <audio id="audio" controls style="display: none;"></audio>
+    </div>
+
+    <script>
+        let currentFilename = null;
+        const convertBtn = document.getElementById('convertBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const statusDiv = document.getElementById('status');
+        const audioPlayer = document.getElementById('audio');
+
+        // 修改 convertToSpeech 函数，接受事件参数 e，并调用 e.preventDefault()
+        async function convertToSpeech(e) {
+            e.preventDefault(); // 阻止默认行为，防止页面刷新
+
+            const text = document.getElementById('text').value;
+            if (!text.trim()) {
+                alert('Please enter some text');
+                return;
+            }
+
+            try {
+                statusDiv.textContent = 'Converting text to speech...';
+                convertBtn.classList.add('loading');
+                convertBtn.disabled = true;
+                downloadBtn.disabled = true;
+                audioPlayer.style.display = 'none';
+
+                const response = await fetch('https://siri.chunzha.tech/v1/audio/speech', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer your_api_key_here'
+                    },
+                    body: JSON.stringify({
+                        input: text
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentFilename = data.filename;
+
+                    // 设置音频播放器的源
+                    audioPlayer.src = `https://siri.chunzha.tech/v1/audio/${currentFilename}`;
+                    audioPlayer.style.display = 'block';
+                    downloadBtn.disabled = false;
+                    statusDiv.textContent = 'Conversion complete!';
+                } else {
+                    const errorData = await response.json();
+                    statusDiv.textContent = 'Error: ' + (errorData.detail || 'Failed to convert text to speech');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                statusDiv.textContent = 'Error occurred while converting text to speech';
+            } finally {
+                convertBtn.classList.remove('loading');
+                convertBtn.disabled = false;
+            }
+        }
+
+        // 修改 downloadAudio 函数，接受事件参数 e，并调用 e.preventDefault()
+        function downloadAudio(e) {
+            e.preventDefault(); // 阻止默认行为，防止页面刷新
+
+            if (!currentFilename) {
+                alert('No audio available for download');
+                return;
+            }
+
+            const a = document.createElement('a');
+            a.href = `https://siri.chunzha.tech/v1/audio/${currentFilename}`;
+            a.download = currentFilename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // 确保在添加事件监听器时，函数接受事件参数
+        convertBtn.addEventListener('click', convertToSpeech);
+        downloadBtn.addEventListener('click', downloadAudio);
+    </script>
+</body>
+</html>
