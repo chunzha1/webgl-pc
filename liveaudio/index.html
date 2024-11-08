@@ -1,187 +1,173 @@
-<!doctype html>
+<!-- player.html -->
+<!DOCTYPE html>
 <html lang="zh-CN">
-    <head>
-        <meta charset="UTF-8" />
-        <title>HLS 音频流播放器</title>
-        <script src="http://gcore.jsdelivr.net/npm/hls.js@latest"></script>
-        <!-- 注意：这里使用 HTTP 版本的 hls.js -->
-        <style>
-            .player-container {
-                margin: 20px;
-                padding: 20px;
-                border: 1px solid #ccc;
-                max-width: 600px;
-                margin: 20px auto;
-            }
-            #status {
-                margin-top: 10px;
-                color: #666;
-                text-align: center;
-            }
-            .controls {
-                margin-top: 10px;
-                text-align: center;
-            }
-            audio {
-                width: 100%;
-                margin: 10px 0;
-            }
-            button {
-                padding: 10px 20px;
-                margin: 0 5px;
-                background-color: #4caf50;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-            }
-            button:hover {
-                background-color: #45a049;
-            }
-        </style>
-    </head>
-    <body>
+<head>
+    <meta charset="UTF-8">
+    <title>音频流播放器</title>
+    <script src="https://gcore.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .player-container {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        .status {
+            margin-top: 10px;
+            color: #666;
+        }
+        button {
+            padding: 8px 16px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
         <div class="player-container">
             <audio id="audio" controls></audio>
-            <div id="status">等待连接...</div>
             <div class="controls">
-                <button onclick="startStream()">开始推流</button>
-                <button onclick="stopStream()">停止推流</button>
+                <button onclick="startStream()">开始流</button>
+                <button onclick="stopStream()">停止流</button>
             </div>
+            <div id="status" class="status">未连接</div>
         </div>
+    </div>
 
-        <script>
-            // 确保使用 HTTP URL
-            const SERVER_URL = "http://ip.chunzha.tech:1935";
-            const audio = document.getElementById("audio");
-            const status = document.getElementById("status");
-            const streamUrl = `${SERVER_URL}/static/stream.m3u8`;
-            let hls = null;
+    <script>
+        const API_BASE_URL = 'http://ip.chunzha.tech:1935';
+        const audio = document.getElementById('audio');
+        const status = document.getElementById('status');
+        let hls = null;
 
-            function initPlayer() {
+        async function startStream() {
+            try {
+                status.textContent = '正在启动流...';
+                const response = await axios.post(`${API_BASE_URL}/api/stream/start`);
+                if (response.data.status === 'success') {
+                    status.textContent = '流已启动，正在连接...';
+                    initializePlayer();
+                }
+            } catch (error) {
+                status.textContent = `启动流失败: ${error.message}`;
+            }
+        }
+
+        async function stopStream() {
+            try {
+                const response = await axios.post(`${API_BASE_URL}/api/stream/stop`);
+                if (response.data.status === 'success') {
+                    status.textContent = '流已停止';
+                    if (hls) {
+                        hls.destroy();
+                        hls = null;
+                    }
+                }
+            } catch (error) {
+                status.textContent = `停止流失败: ${error.message}`;
+            }
+        }
+
+        function initializePlayer() {
+            const streamUrl = `${API_BASE_URL}/hls/stream.m3u8`;
+
+            if (Hls.isSupported()) {
                 if (hls) {
                     hls.destroy();
                 }
 
-                if (Hls.isSupported()) {
-                    hls = new Hls({
-                        debug: false,
-                        manifestLoadingTimeOut: 20000,
-                        manifestLoadingMaxRetry: 3,
-                        manifestLoadingRetryDelay: 500,
-                        levelLoadingTimeOut: 20000,
-                        levelLoadingMaxRetry: 3,
-                        levelLoadingRetryDelay: 500,
+                hls = new Hls({
+                    debug: false,
+                    manifestLoadingTimeOut: 20000,
+                    manifestLoadingMaxRetry: 3,
+                    manifestLoadingRetryDelay: 500,
+                    levelLoadingTimeOut: 20000,
+                    levelLoadingMaxRetry: 3,
+                    levelLoadingRetryDelay: 500,
+                });
+
+                hls.attachMedia(audio);
+
+                hls.on(Hls.Events.MEDIA_ATTACHED, function () {
+                    status.textContent = '媒体已附加，加载流...';
+                    hls.loadSource(streamUrl);
+                });
+
+                hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                    status.textContent = '开始播放...';
+                    audio.play().catch(function (error) {
+                        status.textContent = `播放失败: ${error.message}`;
                     });
+                });
 
-                    hls.attachMedia(audio);
-
-                    hls.on(Hls.Events.MEDIA_ATTACHED, function () {
-                        status.textContent = "媒体附加成功，加载流...";
-                        hls.loadSource(streamUrl);
-                    });
-
-                    hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                        status.textContent = "清单解析完成，开始播放...";
-                        audio.play().catch(function (error) {
-                            status.textContent = "播放失败: " + error.message;
-                        });
-                    });
-
-                    hls.on(Hls.Events.ERROR, function (event, data) {
-                        if (data.fatal) {
-                            switch (data.type) {
-                                case Hls.ErrorTypes.NETWORK_ERROR:
-                                    status.textContent =
-                                        "网络错误，尝试恢复...";
-                                    hls.startLoad();
-                                    break;
-                                case Hls.ErrorTypes.MEDIA_ERROR:
-                                    status.textContent =
-                                        "媒体错误，尝试恢复...";
-                                    hls.recoverMediaError();
-                                    break;
-                                default:
-                                    status.textContent =
-                                        "发生致命错误: " + data.type;
-                                    hls.destroy();
-                                    break;
-                            }
+                hls.on(Hls.Events.ERROR, function (event, data) {
+                    if (data.fatal) {
+                        switch (data.type) {
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                status.textContent = '网络错误，尝试恢复...';
+                                hls.startLoad();
+                                break;
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                status.textContent = '媒体错误，尝试恢复...';
+                                hls.recoverMediaError();
+                                break;
+                            default:
+                                status.textContent = `致命错误: ${data.type}`;
+                                hls.destroy();
+                                break;
                         }
+                    }
+                });
+            } else if (audio.canPlayType('application/vnd.apple.mpegurl')) {
+                audio.src = streamUrl;
+                audio.addEventListener('loadedmetadata', function () {
+                    audio.play().catch(function (error) {
+                        status.textContent = `播放失败: ${error.message}`;
                     });
-                }
+                });
+            } else {
+                status.textContent = '您的浏览器不支持 HLS';
             }
+        }
 
-            async function startStream() {
-                try {
-                    const response = await fetch(
-                        `${SERVER_URL}/api/stream/start`,
-                    );
-                    const data = await response.json();
-                    if (data.status === "success") {
-                        status.textContent = "正在启动流...";
-                        setTimeout(initPlayer, 2000);
-                    } else {
-                        status.textContent = data.message;
-                    }
-                } catch (error) {
-                    status.textContent = "启动流失败: " + error;
+        // 播放状态监听
+        audio.addEventListener('playing', () => {
+            status.textContent = '正在播放';
+        });
+
+        audio.addEventListener('waiting', () => {
+            status.textContent = '缓冲中...';
+        });
+
+        audio.addEventListener('error', () => {
+            status.textContent = `播放错误: ${audio.error ? audio.error.message : '未知错误'}`;
+        });
+
+        // 定期检查流状态
+        async function checkStreamStatus() {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/api/stream/status`);
+                if (!response.data.streaming && hls) {
+                    status.textContent = '流已停止';
+                    hls.destroy();
+                    hls = null;
                 }
+            } catch (error) {
+                console.error('检查流状态失败:', error);
             }
+        }
 
-            async function stopStream() {
-                try {
-                    const response = await fetch(
-                        `${SERVER_URL}/api/stream/stop`,
-                    );
-                    const data = await response.json();
-                    if (data.status === "success") {
-                        status.textContent = "流已停止";
-                        if (hls) {
-                            hls.destroy();
-                            hls = null;
-                        }
-                        audio.src = "";
-                    } else {
-                        status.textContent = data.message;
-                    }
-                } catch (error) {
-                    status.textContent = "停止流失败: " + error;
-                }
-            }
-
-            // 自动检查流状态
-            async function checkStreamStatus() {
-                try {
-                    const response = await fetch(
-                        `${SERVER_URL}/api/stream/status`,
-                    );
-                    const data = await response.json();
-                    if (data.status === "active" && !hls) {
-                        initPlayer();
-                    }
-                } catch (error) {
-                    console.error("检查流状态失败:", error);
-                }
-            }
-
-            // 定期检查流状态
-            setInterval(checkStreamStatus, 5000);
-
-            // 监听播放状态
-            audio.addEventListener("playing", () => {
-                status.textContent = "正在播放";
-            });
-
-            audio.addEventListener("waiting", () => {
-                status.textContent = "缓冲中...";
-            });
-
-            audio.addEventListener("error", () => {
-                status.textContent =
-                    "播放错误: " +
-                    (audio.error ? audio.error.message : "未知错误");
-            });
-        </script>
-    </body>
+        setInterval(checkStreamStatus, 5000);
+    </script>
+</body>
 </html>
