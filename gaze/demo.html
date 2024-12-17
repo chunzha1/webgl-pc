@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebGazer.js 演示</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        #calibration-points {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            border: 1px solid #ccc;
+            margin-top: 20px;
+        }
+        .point {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: red;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        #gaze-point {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: blue;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        #status {
+            color: #666;
+            margin: 10px 0;
+        }
+        .loading {
+            color: orange;
+        }
+        .ready {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebGazer.js 眼动追踪演示</h1>
+    
+    <div id="status">正在加载WebGazer.js...</div>
+    
+    <div class="controls">
+        <button id="startBtn" onclick="startWebGazer()" disabled>开始追踪</button>
+        <button id="stopBtn" onclick="stopWebGazer()" disabled>停止追踪</button>
+    </div>
+
+    <div id="calibration-points">
+        <!-- 校准点将通过JavaScript动态添加 -->
+    </div>
+
+    <div id="gaze-point"></div>
+
+    <script>
+        // 设置状态显示
+        function setStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = type;
+        }
+
+        let isTracking = false;
+
+        // 确保WebGazer正确加载
+        function loadWebGazer() {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://webgazer.cs.brown.edu/webgazer.js';
+                script.onload = () => {
+                    setStatus('WebGazer.js 加载完成！', 'ready');
+                    document.getElementById('startBtn').disabled = false;
+                    resolve();
+                };
+                script.onerror = () => {
+                    setStatus('WebGazer.js 加载失败，请检查网络连接', 'error');
+                    reject(new Error('Failed to load WebGazer.js'));
+                };
+                document.head.appendChild(script);
+            });
+        }
+
+        async function startWebGazer() {
+            if (!isTracking) {
+                try {
+                    setStatus('正在初始化眼动追踪...', 'loading');
+                    await webgazer.setGazeListener(function(data, elapsedTime) {
+                        if (data == null) return;
+                        
+                        const gazePoint = document.getElementById('gaze-point');
+                        gazePoint.style.left = data.x + 'px';
+                        gazePoint.style.top = data.y + 'px';
+                    }).begin();
+                    
+                    isTracking = true;
+                    document.getElementById('stopBtn').disabled = false;
+                    document.getElementById('startBtn').disabled = true;
+                    setStatus('眼动追踪已启动', 'ready');
+                } catch (error) {
+                    setStatus('启动眼动追踪失败: ' + error.message, 'error');
+                }
+            }
+        }
+
+        function stopWebGazer() {
+            if (isTracking) {
+                webgazer.end();
+                isTracking = false;
+                document.getElementById('stopBtn').disabled = true;
+                document.getElementById('startBtn').disabled = false;
+                setStatus('眼动追踪已停止', 'ready');
+            }
+        }
+
+        // 添加校准点
+        function addCalibrationPoints() {
+            const container = document.getElementById('calibration-points');
+            const points = [
+                { x: 10, y: 10 }, { x: 50, y: 50 }, { x: 90, y: 10 },
+                { x: 10, y: 90 }, { x: 50, y: 50 }, { x: 90, y: 90 }
+            ];
+
+            points.forEach(pos => {
+                const point = document.createElement('div');
+                point.className = 'point';
+                point.style.left = pos.x + '%';
+                point.style.top = pos.y + '%';
+                point.addEventListener('click', () => {
+                    point.style.background = 'green';
+                    setTimeout(() => {
+                        point.style.background = 'red';
+                    }, 500);
+                });
+                container.appendChild(point);
+            });
+        }
+
+        // 页面加载完成后初始化
+        window.onload = function() {
+            addCalibrationPoints();
+            loadWebGazer().catch(error => {
+                console.error('Failed to load WebGazer:', error);
+            });
+        };
+    </script>
+</body>
+</html>
