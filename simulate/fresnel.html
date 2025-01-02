@@ -1,135 +1,225 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <title>菲涅尔衍射模拟</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        .controls {
-            margin-bottom: 20px;
-        }
-        .controls label {
-            display: inline-block;
-            width: 150px;
-        }
-        canvas {
-            border: 1px solid #000;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>菲涅尔衍射模拟</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      color: #2c3e50;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .control-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-bottom: 0.5rem;
+      color: #495057;
+      font-weight: 500;
+    }
+
+    input[type="number"] {
+      padding: 8px;
+      border: 2px solid #dee2e6;
+      border-radius: 4px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #4dabf7;
+    }
+
+    button {
+      grid-column: 1 / -1;
+      padding: 12px 24px;
+      background-color: #339af0;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: #228be6;
+    }
+
+    .canvas-container {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    #canvas {
+      width: 100%;
+      height: 400px;
+      background: #ffffff;
+      border-radius: 4px;
+    }
+
+    .description {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #e7f5ff;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      color: #495057;
+    }
+  </style>
 </head>
 <body>
-    <h1>菲涅尔衍射模拟</h1>
+  <div class="container">
+    <h1>一维菲涅尔衍射模拟</h1>
     <div class="controls">
-        <div>
-            <label for="wavelength">波长 (λ, nm):</label>
-            <input type="number" id="wavelength" value="500" min="100" max="1000"> 
-        </div>
-        <div>
-            <label for="gratingSpacing">光栅间距 (d, μm):</label>
-            <input type="number" id="gratingSpacing" value="10" min="1" max="100"> 
-        </div>
-        <div>
-            <label for="gratingCount">光栅数量 (N):</label>
-            <input type="number" id="gratingCount" value="5" min="1" max="20"> 
-        </div>
-        <div>
-            <label for="slitWidth">光栅宽度 (a, μm):</label>
-            <input type="number" id="slitWidth" value="5" min="0.1" max="100" step="0.1"> 
-        </div>
-        <div>
-            <label for="distance">观察距离 (z, cm):</label>
-            <input type="number" id="distance" value="100" min="10" max="1000"> 
-        </div>
-        <div>
-            <button id="simulateBtn">模拟</button>
-        </div>
+      <div class="control-item">
+        <label for="wavelength">波长 λ (m)</label>
+        <input type="number" step="1e-9" id="wavelength" value="5e-7">
+      </div>
+      
+      <div class="control-item">
+        <label for="distance">观察屏距离 z (m)</label>
+        <input type="number" step="0.1" id="distance" value="1">
+      </div>
+      
+      <div class="control-item">
+        <label for="slitCount">光栅狭缝数量</label>
+        <input type="number" id="slitCount" value="5">
+      </div>
+      
+      <div class="control-item">
+        <label for="slitSpacing">光栅间距 d (m)</label>
+        <input type="number" step="1e-4" id="slitSpacing" value="0.0002">
+      </div>
+      
+      <div class="control-item">
+        <label for="slitWidth">单个狭缝宽度 a (m)</label>
+        <input type="number" step="1e-5" id="slitWidth" value="0.00008">
+      </div>
+      
+      <button id="simulateBtn">开始模拟</button>
     </div>
-    <canvas id="diffractionCanvas" width="800" height="600"></canvas>
+    <div class="canvas-container">
+      <canvas id="canvas" width="800" height="400"></canvas>
+    </div>
+    <div class="description">
+      <p>本模拟器展示了一维菲涅尔衍射现象。通过调整上方参数，可以观察不同条件下的衍射图样。</p>
+    </div>
+  </div>
 
-    <script>
-        // 获取页面元素
-        const wavelengthInput = document.getElementById('wavelength');
-        const gratingSpacingInput = document.getElementById('gratingSpacing');
-        const gratingCountInput = document.getElementById('gratingCount');
-        const slitWidthInput = document.getElementById('slitWidth');
-        const distanceInput = document.getElementById('distance');
-        const simulateBtn = document.getElementById('simulateBtn');
-        const canvas = document.getElementById('diffractionCanvas');
-        const ctx = canvas.getContext('2d');
-
-        // 物理常数
-        const pi = Math.PI;
-
-        // 模拟函数
-        function simulateFresnelDiffraction() {
-            // 获取参数
-            const lambda = parseFloat(wavelengthInput.value) * 1e-9; // 转换为米
-            const d = parseFloat(gratingSpacingInput.value) * 1e-6; // 米
-            const N = parseInt(gratingCountInput.value);
-            const a = parseFloat(slitWidthInput.value) * 1e-6; // 米
-            const z = parseFloat(distanceInput.value) * 1e-2; // 米
-
-            // 画布参数
-            const width = canvas.width;
-            const height = canvas.height;
-            const centerX = width / 2;
-            const centerY = height / 2;
-            const maxIntensity = [];
-
-            // 定义观察屏范围（-5 mm 到 5 mm）
-            const screenSize = 5e-3; // 米
-            const dx = 2 * screenSize / width;
-
-            // 预计算光栅位置
-            const slitPositions = [];
-            const totalWidth = (N - 1) * d;
-            const startX = -totalWidth / 2;
-            for (let i = 0; i < N; i++) {
-                slitPositions.push(startX + i * d);
-            }
-
-            // 计算光强
-            const intensity = new Float32Array(width);
-            for (let i = 0; i < width; i++) {
-                const x = -screenSize + i * dx; // 位置
-                let E = 0; // 复振幅
-                for (let pos of slitPositions) {
-                    const r = Math.sqrt((pos)**2 + z**2);
-                    const phase = (2 * pi / lambda) * r;
-                    E += Math.exp(1j * phase) * (a / pos) ; // 简化振幅
-                }
-                intensity[i] = Math.abs(E)**2;
-            }
-
-            // 归一化
-            const maxVal = Math.max(...intensity);
-            for (let i = 0; i < width; i++) {
-                intensity[i] = intensity[i] / maxVal;
-            }
-
-            // 绘制
-            const imageData = ctx.createImageData(width, height);
-            for (let i = 0; i < width; i++) {
-                const bright = Math.floor(intensity[i] * 255);
-                for (let j = 0; j < height; j++) {
-                    const index = (j * width + i) * 4;
-                    imageData.data[index] = bright;     // R
-                    imageData.data[index + 1] = bright; // G
-                    imageData.data[index + 2] = bright; // B
-                    imageData.data[index + 3] = 255;    // A
-                }
-            }
-            ctx.putImageData(imageData, 0, 0);
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const simulateBtn = document.getElementById('simulateBtn');
+    simulateBtn.addEventListener('click', simulateDiffraction);
+    function simulateDiffraction() {
+      const wavelength = parseFloat(document.getElementById('wavelength').value);
+      const distance   = parseFloat(document.getElementById('distance').value);
+      const slitCount  = parseInt(document.getElementById('slitCount').value);
+      const slitSpacing= parseFloat(document.getElementById('slitSpacing').value);
+      const slitWidth  = parseFloat(document.getElementById('slitWidth').value);
+      const k = 2 * Math.PI / wavelength;
+      const xMin = -0.01;
+      const xMax =  0.01;
+      const numX = 800;
+      const apertureWidth = slitCount * slitSpacing + 2 * slitSpacing; 
+      const xPrimeMin = -apertureWidth / 2;
+      const xPrimeMax =  apertureWidth / 2;
+      const numXPrime = 2000;
+      const dxPrime = (xPrimeMax - xPrimeMin) / numXPrime;
+      const apertureArray = new Float64Array(numXPrime);
+      for (let i = 0; i < numXPrime; i++) {
+        const xPrime = xPrimeMin + i * dxPrime;
+        apertureArray[i] = 0;
+        for (let n = 0; n < slitCount; n++) {
+          const center = (n - (slitCount - 1) / 2) * slitSpacing;
+          const left   = center - slitWidth / 2;
+          const right  = center + slitWidth / 2;
+          if (xPrime >= left && xPrime <= right) {
+            apertureArray[i] = 1;
+            break;
+          }
         }
+      }
+      const intensity = new Float64Array(numX);
+      const phaseFactorXPrime = new Float64Array(numXPrime);
+      for (let i = 0; i < numXPrime; i++) {
+        const xPrime = xPrimeMin + i * dxPrime;
+        phaseFactorXPrime[i] = k * xPrime * xPrime / (2 * distance);
+      }
 
-        // 添加事件监听
-        simulateBtn.addEventListener('click', simulateFresnelDiffraction);
-
-        // 初始模拟
-        simulateFresnelDiffraction();
-    </script>
+      for (let ix = 0; ix < numX; ix++) {
+        const x = xMin + (xMax - xMin) * ix / (numX - 1);
+        let re = 0.0;
+        let im = 0.0;
+        for (let iPrime = 0; iPrime < numXPrime; iPrime++) {
+          if (apertureArray[iPrime] === 0) continue;
+          const xPrime = xPrimeMin + iPrime * dxPrime;
+          const s1 = phaseFactorXPrime[iPrime];
+          const s2 = - (k * x * xPrime) / distance;
+          const phase = s1 + s2;
+          re += Math.cos(phase);
+          im += Math.sin(phase);
+        }
+        re *= dxPrime;
+        im *= dxPrime;
+        intensity[ix] = re * re + im * im;
+      }
+      const maxI = Math.max(...intensity);
+      for (let ix = 0; ix < numX; ix++) {
+        intensity[ix] /= maxI;
+      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const imageData = ctx.createImageData(canvas.width, canvas.height);
+      for (let ix = 0; ix < numX; ix++) {
+        const y = intensity[ix] * canvas.height;
+        for (let iy = 0; iy < y; iy++) {
+          const index = (iy * canvas.width + ix) * 4;
+          imageData.data[index] = 0;
+          imageData.data[index + 1] = 0;
+          imageData.data[index + 2] = 255;
+          imageData.data[index + 3] = 255;
+        }
+      }
+      ctx.putImageData(imageData, 0, 0);
+      ctx.fillStyle = "black";
+      ctx.font = "14px sans-serif";
+      ctx.fillText("衍射强度分布 (仅一维横截面)", 10, 20);
+    }
+  </script>
 </body>
 </html>
