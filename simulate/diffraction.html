@@ -1,279 +1,213 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="UTF-8" />
-  <title>菲涅尔衍射模拟</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background-color: #f5f5f5;
-      color: #333;
-    }
-    
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      background: white;
-      padding: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
+    <meta charset="UTF-8">
+    <title>菲涅尔圆孔衍射模拟</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
 
-    h1 {
-      color: #2c3e50;
-      text-align: center;
-      margin-bottom: 1.5rem;
-      font-weight: 600;
-    }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
 
-    .controls {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-      padding: 1.5rem;
-      background: #f8f9fa;
-      border-radius: 8px;
-    }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
 
-    .control-item {
-      display: flex;
-      flex-direction: column;
-    }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
 
-    label {
-      margin-bottom: 0.5rem;
-      color: #495057;
-      font-weight: 500;
-    }
+        .control-item {
+            display: flex;
+            flex-direction: column;
+        }
 
-    input[type="number"] {
-      padding: 8px;
-      border: 2px solid #dee2e6;
-      border-radius: 4px;
-      font-size: 14px;
-      transition: border-color 0.2s;
-    }
+        label {
+            margin-bottom: 0.5rem;
+            color: #495057;
+            font-weight: 500;
+        }
 
-    input[type="number"]:focus {
-      outline: none;
-      border-color: #4dabf7;
-    }
+        input[type="number"] {
+            padding: 8px;
+            border: 2px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
 
-    button {
-      grid-column: 1 / -1;
-      padding: 12px 24px;
-      background-color: #339af0;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #4dabf7;
+        }
 
-    button:hover {
-      background-color: #228be6;
-    }
+        button {
+            grid-column: 1 / -1;
+            padding: 12px 24px;
+            background-color: #339af0;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
 
-    .canvas-container {
-      background: white;
-      padding: 1rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
+        button:hover {
+            background-color: #228be6;
+        }
 
-    #canvas {
-      width: 100%;
-      height: 400px;
-      background: #ffffff;
-      border-radius: 4px;
-    }
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
 
-    .description {
-      margin-top: 1rem;
-      padding: 1rem;
-      background: #e7f5ff;
-      border-radius: 4px;
-      font-size: 0.9rem;
-      color: #495057;
-    }
-  </style>
+        canvas {
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e7f5ff;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>一维菲涅尔衍射模拟</h1>
+    <div class="container">
+        <h1>菲涅尔圆孔衍射模拟</h1>
 
-    <div class="controls">
-      <div class="control-item">
-        <label for="wavelength">波长 λ (m)</label>
-        <input type="number" step="1e-9" id="wavelength" value="5e-7">
-      </div>
-      
-      <div class="control-item">
-        <label for="distance">观察屏距离 z (m)</label>
-        <input type="number" step="0.1" id="distance" value="1">
-      </div>
-      
-      <div class="control-item">
-        <label for="slitCount">光栅狭缝数量</label>
-        <input type="number" id="slitCount" value="5">
-      </div>
-      
-      <div class="control-item">
-        <label for="slitSpacing">光栅间距 d (m)</label>
-        <input type="number" step="1e-4" id="slitSpacing" value="0.0002">
-      </div>
-      
-      <div class="control-item">
-        <label for="slitWidth">单个狭缝宽度 a (m)</label>
-        <input type="number" step="1e-5" id="slitWidth" value="0.00008">
-      </div>
-      
-      <button id="simulateBtn">开始模拟</button>
+        <div class="controls">
+            <div class="control-item">
+                <label for="wavelength">波长 (nm)</label>
+                <input type="number" id="wavelength" value="500" min="380" max="780">
+            </div>
+            <div class="control-item">
+                <label for="aperture">孔径半径 (mm)</label>
+                <input type="number" id="aperture" value="1" min="0.1" max="10">
+            </div>
+            <div class="control-item">
+                <label for="distance">观察距离 (mm)</label>
+                <input type="number" id="distance" value="1000" min="100" max="5000">
+            </div>
+            <button id="calculate">计算衍射图样</button>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="patternCanvas" width="400" height="400"></canvas>
+            <canvas id="intensityCanvas" width="400" height="400"></canvas>
+        </div>
+
+        <div class="info">
+            <p>左图：衍射图样强度分布（2D）</p>
+            <p>右图：中心截面强度分布（1D）</p>
+        </div>
     </div>
 
-    <div class="canvas-container">
-      <canvas id="canvas" width="800" height="400"></canvas>
-    </div>
+    <script>
+        const patternCanvas = document.getElementById('patternCanvas');
+        const intensityCanvas = document.getElementById('intensityCanvas');
+        const patternCtx = patternCanvas.getContext('2d');
+        const intensityCtx = intensityCanvas.getContext('2d');
 
-    <div class="description">
-      <p>本模拟器展示了一维菲涅尔衍射现象。通过调整上方参数，可以观察不同条件下的衍射图样。</p>
-    </div>
-  </div>
+        function calculateFresnel(wavelength, radius, distance) {
+            const k = 2 * Math.PI / (wavelength * 1e-9); // 波数
+            const size = 400; // 画布大小
+            const scale = 0.1; // 缩放因子，用于调整显示范围
 
-  <script>
-    /*
-      一维菲涅尔衍射原理简述（多狭缝示例）:
-      假设入射在 z=0 处的透过口（狭缝阵列）为 A(x')，则在 z>0 处, x 位置处的场可由菲涅尔积分给出：
-         U(x,z) ~ exp(i k z) * exp(i k x^2 / 2z) / (i λ z)
-                  ∫ [ A(x') * exp(i k x'^2 / 2z) * exp(-i k x x' / z ) ] dx'
-      我们用数值方法对 x' 做离散积分，即将 x' 分成很多小段求和。
-      最终衍射图样的强度分布与 |U(x,z)|² 成正比。
-    */
+            // 创建图像数据
+            const imageData = patternCtx.createImageData(size, size);
+            const intensityData = new Float64Array(size);
 
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
+            // 计算衍射图样
+            for (let y = 0; y < size; y++) {
+                for (let x = 0; x < size; x++) {
+                    const dx = (x - size/2) * scale;
+                    const dy = (y - size/2) * scale;
+                    const r = Math.sqrt(dx*dx + dy*dy);
+                    
+                    // 菲涅尔数
+                    const F = Math.PI * radius * radius / (wavelength * 1e-9 * distance * 1e-3);
+                    
+                    // 计算强度
+                    let intensity = 0;
+                    if (r === 0) {
+                        intensity = 1;
+                    } else {
+                        const u = k * r * r / (2 * distance * 1e-3);
+                        intensity = (1 - Math.cos(u)) / (u * u);
+                    }
 
-    const simulateBtn = document.getElementById('simulateBtn');
-    simulateBtn.addEventListener('click', simulateDiffraction);
+                    // 归一化并存储强度
+                    const idx = (y * size + x) * 4;
+                    const value = Math.floor(255 * intensity);
+                    imageData.data[idx] = value;
+                    imageData.data[idx + 1] = value;
+                    imageData.data[idx + 2] = value;
+                    imageData.data[idx + 3] = 255;
 
-    function simulateDiffraction() {
-      // 读取用户输入参数
-      const wavelength = parseFloat(document.getElementById('wavelength').value);
-      const distance   = parseFloat(document.getElementById('distance').value);
-      const slitCount  = parseInt(document.getElementById('slitCount').value);
-      const slitSpacing= parseFloat(document.getElementById('slitSpacing').value);
-      const slitWidth  = parseFloat(document.getElementById('slitWidth').value);
+                    // 存储中心线强度分布
+                    if (y === size/2) {
+                        intensityData[x] = intensity;
+                    }
+                }
+            }
 
-      // 其他常量
-      const c = 3e8;          // 光速（如果需要，可以用来计算频率等）
-      const k = 2 * Math.PI / wavelength;  // 波数 k = 2π / λ
+            // 绘制2D图样
+            patternCtx.putImageData(imageData, 0, 0);
 
-      // 为了演示，这里只做一维横向 x 方向的积分与观测
-      // 设置模拟范围（观测面上 x 的范围）
-      // 可以根据衍射角期望范围进行适当调整
-      const xMin = -0.01;   // 观察平面最左(米)
-      const xMax =  0.01;   // 观察平面最右(米)
-      const numX = 800;     // 观察平面采样点数（对应画布像素宽度）
+            // 绘制强度曲线
+            intensityCtx.clearRect(0, 0, size, size);
+            intensityCtx.beginPath();
+            intensityCtx.strokeStyle = '#339af0';
+            intensityCtx.lineWidth = 2;
 
-      // 在狭缝平面上的采样，为了数值积分
-      // 让总宽度覆盖多缝结构外加一定边界
-      const apertureWidth = slitCount * slitSpacing + 2 * slitSpacing; 
-      const xPrimeMin = -apertureWidth / 2;
-      const xPrimeMax =  apertureWidth / 2;
-      const numXPrime = 2000; // 通常为了数值效果更好，采样点要比观察平面更密集一些
-      const dxPrime = (xPrimeMax - xPrimeMin) / numXPrime;
-
-      // 计算狭缝函数 A(x')。这里约定狭缝中心沿着光轴对称排布
-      // A(x') = 1 表示该 x' 位置能透射，0 表示阻挡
-      // 多狭缝：中心间距 d, 单缝宽度 a, 数量 N
-      // 第 i 个狭缝中心大约在 x' = (i - (N-1)/2)*d
-      const apertureArray = new Float64Array(numXPrime);
-      for (let i = 0; i < numXPrime; i++) {
-        const xPrime = xPrimeMin + i * dxPrime;
-        apertureArray[i] = 0; // 先默认阻挡
-
-        // 判断是否落在任意一个狭缝范围内
-        for (let n = 0; n < slitCount; n++) {
-          const center = (n - (slitCount - 1) / 2) * slitSpacing;
-          const left   = center - slitWidth / 2;
-          const right  = center + slitWidth / 2;
-          if (xPrime >= left && xPrime <= right) {
-            apertureArray[i] = 1;
-            break;
-          }
+            for (let x = 0; x < size; x++) {
+                const y = size - intensityData[x] * size;
+                if (x === 0) {
+                    intensityCtx.moveTo(x, y);
+                } else {
+                    intensityCtx.lineTo(x, y);
+                }
+            }
+            intensityCtx.stroke();
         }
-      }
 
-      // 进行菲涅尔积分的数值计算
-      // U(x) ≈ ∑ A(x') * exp[i * k/2z * x'^2] * exp[-i * k/z * x x'] dx'
-      // 后面乘上共同相位与常数因子只会影响整体相位和幅度标度，这里为了简化，忽略 1/(i λ z) 等因子
-      // 仅计算“相对”场强分布
-      const intensity = new Float64Array(numX);
+        document.getElementById('calculate').addEventListener('click', () => {
+            const wavelength = parseFloat(document.getElementById('wavelength').value);
+            const radius = parseFloat(document.getElementById('aperture').value);
+            const distance = parseFloat(document.getElementById('distance').value);
+            
+            calculateFresnel(wavelength, radius, distance);
+        });
 
-      // 先把与 x' 相关的相位项预先算好，避免重复计算
-      const phaseFactorXPrime = new Float64Array(numXPrime);
-      for (let i = 0; i < numXPrime; i++) {
-        const xPrime = xPrimeMin + i * dxPrime;
-        phaseFactorXPrime[i] = k * xPrime * xPrime / (2 * distance);
-      }
-
-      for (let ix = 0; ix < numX; ix++) {
-        const x = xMin + (xMax - xMin) * ix / (numX - 1);
-        // 计算 E(x)
-        let re = 0.0; // 实部
-        let im = 0.0; // 虚部
-        for (let iPrime = 0; iPrime < numXPrime; iPrime++) {
-          if (apertureArray[iPrime] === 0) continue; // 没有透射就不贡献
-
-          const xPrime = xPrimeMin + iPrime * dxPrime;
-
-          // 计算相位
-          // totalPhase = k/2z * x'^2 - k/z * x*x'
-          // 先用预存的相位 = s1, 再加上 s2 = -k*x*x'/z
-          const s1 = phaseFactorXPrime[iPrime];
-          const s2 = - (k * x * xPrime) / distance;
-          const phase = s1 + s2;
-
-          re += Math.cos(phase);
-          im += Math.sin(phase);
-        }
-        // 累加完之后，计算强度 = |E(x)|^2
-        // 乘上 dxPrime 模拟积分
-        re *= dxPrime;
-        im *= dxPrime;
-        intensity[ix] = re * re + im * im;
-      }
-
-      // 归一化便于显示
-      const maxI = Math.max(...intensity);
-      for (let ix = 0; ix < numX; ix++) {
-        intensity[ix] /= maxI;
-      }
-
-      // 在 canvas 上绘图，黑色背景+单通道显示强度（或彩色映射）
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // 绘制强度分布线：从下往上画
-      ctx.beginPath();
-      ctx.moveTo(0, canvas.height);
-      for (let ix = 0; ix < numX; ix++) {
-        const y = intensity[ix] * canvas.height;
-        ctx.lineTo(ix, canvas.height - y);
-      }
-      ctx.strokeStyle = "blue";
-      ctx.stroke();
-
-      // 在画布上标注一下
-      ctx.fillStyle = "black";
-      ctx.font = "14px sans-serif";
-      ctx.fillText("衍射强度分布 (仅一维横截面)", 10, 20);
-    }
-  </script>
+        // 初始计算
+        calculateFresnel(500, 1, 1000);
+    </script>
 </body>
 </html>
-
-  
