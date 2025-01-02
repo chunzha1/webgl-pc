@@ -6,14 +6,10 @@
         .container {
             display: flex;
             padding: 20px;
-            font-family: Arial, sans-serif;
         }
         .controls {
             width: 300px;
             padding: 20px;
-            background: #f5f5f5;
-            border-radius: 8px;
-            margin-right: 20px;
         }
         .control-group {
             margin-bottom: 15px;
@@ -21,24 +17,14 @@
         label {
             display: block;
             margin-bottom: 5px;
-            font-weight: bold;
-        }
-        .canvas-container {
-            position: relative;
         }
         canvas {
             border: 1px solid #ccc;
-            margin: 10px;
         }
-        .value-display {
-            display: inline-block;
-            min-width: 50px;
-            margin-left: 10px;
-        }
-        select {
-            width: 100%;
-            padding: 5px;
-            margin-bottom: 10px;
+        .canvas-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
     </style>
 </head>
@@ -47,32 +33,27 @@
         <div class="controls">
             <h2>参数控制</h2>
             <div class="control-group">
-                <label for="apertureType">孔径形状:</label>
-                <select id="apertureType">
-                    <option value="circular">圆形</option>
-                    <option value="rectangular">矩形</option>
-                    <option value="triangular">三角形</option>
-                </select>
-            </div>
-            <div class="control-group">
                 <label for="wavelength">波长 (nm):</label>
                 <input type="range" id="wavelength" min="380" max="780" value="550" step="1">
-                <span id="wavelengthValue" class="value-display">550</span>
+                <span id="wavelengthValue">550</span>
             </div>
             <div class="control-group">
-                <label for="apertureSize">孔径大小 (μm):</label>
+                <label for="apertureSize">孔径尺寸 (μm):</label>
                 <input type="range" id="apertureSize" min="1" max="50" value="10" step="0.1">
-                <span id="apertureSizeValue" class="value-display">10</span>
+                <span id="apertureSizeValue">10</span>
             </div>
             <div class="control-group">
-                <label for="distance">观察距离 (mm):</label>
-                <input type="range" id="distance" min="1" max="1000" value="100" step="1">
-                <span id="distanceValue" class="value-display">100</span>
+                <label for="apertureShape">孔径形状:</label>
+                <select id="apertureShape">
+                    <option value="circle">圆形</option>
+                    <option value="square">方形</option>
+                    <option value="triangle">三角形</option>
+                </select>
             </div>
             <div class="control-group">
                 <label for="intensity">亮度:</label>
                 <input type="range" id="intensity" min="1" max="100" value="50" step="1">
-                <span id="intensityValue" class="value-display">50</span>
+                <span id="intensityValue">50</span>
             </div>
         </div>
         <div class="canvas-container">
@@ -83,13 +64,12 @@
     <script>
         const canvas = document.getElementById('diffractionCanvas');
         const ctx = canvas.getContext('2d');
-
-        // 控件对象
+        
+        // 控件
         const controls = {
-            apertureType: document.getElementById('apertureType'),
             wavelength: document.getElementById('wavelength'),
             apertureSize: document.getElementById('apertureSize'),
-            distance: document.getElementById('distance'),
+            apertureShape: document.getElementById('apertureShape'),
             intensity: document.getElementById('intensity')
         };
 
@@ -98,154 +78,145 @@
             document.getElementById(id + 'Value').textContent = value;
         }
 
+        // 生成二维衍射图样
+        function generateDiffractionPattern() {
+            const width = canvas.width;
+            const height = canvas.height;
+            const imageData = ctx.createImageData(width, height);
+            
+            const wavelength = controls.wavelength.value * 1e-9; // 转换为米
+            const apertureSize = controls.apertureSize.value * 1e-6; // 转换为米
+            const shape = controls.apertureShape.value;
+            const intensityScale = controls.intensity.value / 50;
+
+            const center = width / 2;
+            const scale = 1e4; // 缩放因子
+
+            // 计算衍射图样
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const dx = (x - center) / scale;
+                    const dy = (y - center) / scale;
+                    const r = Math.sqrt(dx * dx + dy * dy);
+                    const theta = Math.atan2(dy, dx);
+
+                    let intensity = 0;
+                    switch (shape) {
+                        case 'circle':
+                            // 圆形孔径的衍射
+                            const k = 2 * Math.PI / wavelength;
+                            const argument = k * apertureSize * r;
+                            intensity = argument === 0 ? 1 : Math.pow(2 * besselJ1(argument) / argument, 2);
+                            break;
+                        
+                        case 'square':
+                            // 方形孔径的衍射
+                            const sx = Math.sin(Math.PI * apertureSize * dx / wavelength);
+                            const sy = Math.sin(Math.PI * apertureSize * dy / wavelength);
+                            intensity = Math.pow(sx * sy / (Math.PI * Math.PI * dx * dy), 2);
+                            break;
+                        
+                        case 'triangle':
+                            // 三角形孔径的衍射（简化模型）
+                            const tr = Math.PI * apertureSize * r / wavelength;
+                            intensity = Math.pow(Math.sin(tr) / tr, 2);
+                            intensity *= (1 + Math.cos(3 * theta)) / 2;
+                            break;
+                    }
+
+                    // 设置像素值
+                    const index = (y * width + x) * 4;
+                    const value = Math.min(255, Math.floor(intensity * 255 * intensityScale));
+                    imageData.data[index] = value;     // R
+                    imageData.data[index + 1] = value; // G
+                    imageData.data[index + 2] = value; // B
+                    imageData.data[index + 3] = 255;   // A
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+            drawAxes();
+        }
+
         // 绘制坐标轴
         function drawAxes() {
             const width = canvas.width;
             const height = canvas.height;
-            const center = { x: width/2, y: height/2 };
-            
+            const center = width / 2;
+
             ctx.beginPath();
-            ctx.strokeStyle = '#000';
+            ctx.strokeStyle = 'red';
             ctx.lineWidth = 1;
-            
+
             // X轴
-            ctx.moveTo(0, center.y);
-            ctx.lineTo(width, center.y);
-            
+            ctx.moveTo(0, center);
+            ctx.lineTo(width, center);
+
             // Y轴
-            ctx.moveTo(center.x, 0);
-            ctx.lineTo(center.x, height);
-            
+            ctx.moveTo(center, 0);
+            ctx.lineTo(center, height);
+
             // 刻度
-            const tickLength = 5;
-            const tickSpacing = 50;
-            
-            // X轴刻度
-            for(let x = center.x; x < width; x += tickSpacing) {
-                ctx.moveTo(x, center.y - tickLength);
-                ctx.lineTo(x, center.y + tickLength);
+            for (let i = -5; i <= 5; i++) {
+                if (i === 0) continue;
                 
-                // 对称的负轴刻度
-                ctx.moveTo(2*center.x - x, center.y - tickLength);
-                ctx.lineTo(2*center.x - x, center.y + tickLength);
-            }
-            
-            // Y轴刻度
-            for(let y = center.y; y < height; y += tickSpacing) {
-                ctx.moveTo(center.x - tickLength, y);
-                ctx.lineTo(center.x + tickLength, y);
+                // X轴刻度
+                const x = center + i * width/10;
+                ctx.moveTo(x, center - 5);
+                ctx.lineTo(x, center + 5);
                 
-                // 对称的负轴刻度
-                ctx.moveTo(center.x - tickLength, 2*center.y - y);
-                ctx.lineTo(center.x + tickLength, 2*center.y - y);
+                // Y轴刻度
+                const y = center + i * height/10;
+                ctx.moveTo(center - 5, y);
+                ctx.lineTo(center + 5, y);
             }
-            
+
             ctx.stroke();
-            
-            // 添加标签
+
+            // 添加刻度标签
             ctx.font = '12px Arial';
-            ctx.fillStyle = '#000';
+            ctx.fillStyle = 'red';
             ctx.textAlign = 'center';
             
-            // X轴标签
-            for(let x = tickSpacing; x <= width/2; x += tickSpacing) {
-                ctx.fillText(x.toString(), center.x + x, center.y + 20);
-                ctx.fillText((-x).toString(), center.x - x, center.y + 20);
-            }
-            
-            // Y轴标签
-            ctx.textAlign = 'right';
-            for(let y = tickSpacing; y <= height/2; y += tickSpacing) {
-                ctx.fillText((-y).toString(), center.x - 10, center.y + y);
-                ctx.fillText(y.toString(), center.x - 10, center.y - y);
+            for (let i = -5; i <= 5; i++) {
+                if (i === 0) continue;
+                const value = i / 5;
+                ctx.fillText(value.toFixed(1), center + i * width/10, center + 20);
+                ctx.fillText(value.toFixed(1), center - 20, center + i * height/10);
             }
         }
 
-        // 计算二维衍射图样
-        function calculateDiffractionPattern(x, y, params) {
-            const { wavelength, apertureSize, distance, apertureType } = params;
-            const k = 2 * Math.PI / (wavelength * 1e-9);
-            const r = Math.sqrt(x*x + y*y);
+        // 第一类贝塞尔函数
+        function besselJ1(x) {
+            if (x === 0) return 0;
             
-            let intensity = 0;
-            
-            switch(apertureType) {
-                case 'circular':
-                    // 圆形孔径的艾里斑
-                    const v = k * apertureSize * 1e-6 * r / (distance * 1e-3);
-                    intensity = Math.pow(2 * bessel1(v) / v, 2);
-                    break;
-                    
-                case 'rectangular':
-                    // 矩形孔径
-                    const vx = k * apertureSize * 1e-6 * x / (distance * 1e-3);
-                    const vy = k * apertureSize * 1e-6 * y / (distance * 1e-3);
-                    intensity = Math.pow(Math.sin(vx/2)/(vx/2), 2) * Math.pow(Math.sin(vy/2)/(vy/2), 2);
-                    break;
-                    
-                case 'triangular':
-                    // 三角形孔径（简化模型）
-                    const vt = k * apertureSize * 1e-6 * r / (distance * 1e-3);
-                    intensity = Math.pow(3 * (Math.sin(vt/3)/(vt/3)), 2);
-                    break;
+            let j1 = 0;
+            for (let i = 0; i < 20; i++) {
+                const term = Math.pow(-1, i) * Math.pow(x/2, 2*i+1) / 
+                           (factorial(i) * factorial(i+1));
+                j1 += term;
             }
-            
-            return intensity;
+            return j1;
         }
 
-        // 第一类贝塞尔函数（简化近似）
-        function bessel1(x) {
-            if (x === 0) return 0.5;
-            return Math.sin(x) / (x * x) - Math.cos(x) / x;
-        }
-
-        // 绘制衍射图样
-        function drawDiffractionPattern() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawAxes();
-            
-            const params = {
-                wavelength: parseFloat(controls.wavelength.value),
-                apertureSize: parseFloat(controls.apertureSize.value),
-                distance: parseFloat(controls.distance.value),
-                apertureType: controls.apertureType.value
-            };
-            
-            const intensity = parseFloat(controls.intensity.value) / 50;
-            const imageData = ctx.createImageData(canvas.width, canvas.height);
-            const center = { x: canvas.width/2, y: canvas.height/2 };
-            
-            for(let i = 0; i < canvas.width; i++) {
-                for(let j = 0; j < canvas.height; j++) {
-                    const x = (i - center.x) / 5;
-                    const y = (j - center.y) / 5;
-                    
-                    let patternIntensity = calculateDiffractionPattern(x, y, params);
-                    patternIntensity = Math.min(1, patternIntensity * intensity);
-                    
-                    const idx = (i + j * canvas.width) * 4;
-                    imageData.data[idx] = patternIntensity * 255;     // R
-                    imageData.data[idx + 1] = patternIntensity * 255; // G
-                    imageData.data[idx + 2] = patternIntensity * 255; // B
-                    imageData.data[idx + 3] = 255;                     // A
-                }
-            }
-            
-            ctx.putImageData(imageData, 0, 0);
+        // 阶乘函数
+        function factorial(n) {
+            if (n <= 1) return 1;
+            return n * factorial(n-1);
         }
 
         // 添加事件监听器
         Object.keys(controls).forEach(key => {
             controls[key].addEventListener('input', function() {
-                if (key !== 'apertureType') {
+                if (key !== 'apertureShape') {
                     updateValue(key, this.value);
                 }
-                drawDiffractionPattern();
+                generateDiffractionPattern();
             });
         });
 
         // 初始绘制
-        drawDiffractionPattern();
+        generateDiffractionPattern();
     </script>
 </body>
 </html>
