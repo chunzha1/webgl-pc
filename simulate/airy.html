@@ -1,0 +1,178 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>圆形孔径艾里斑衍射图样</title>
+    <style>
+        .container {
+            display: flex;
+            padding: 20px;
+        }
+        .controls {
+            width: 300px;
+            padding: 20px;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        canvas {
+            border: 1px solid #ccc;
+        }
+        .info {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="controls">
+            <h2>艾里斑参数控制</h2>
+            <div class="control-group">
+                <label for="apertureSize">孔径半径 (μm):</label>
+                <input type="range" id="apertureSize" min="1" max="50" value="20" step="1">
+                <span id="apertureSizeValue">20</span>
+            </div>
+            <div class="control-group">
+                <label for="wavelength">波长 (nm):</label>
+                <input type="range" id="wavelength" min="380" max="780" value="550" step="1">
+                <span id="wavelengthValue">550</span>
+            </div>
+            <div class="control-group">
+                <label for="contrast">对比度:</label>
+                <input type="range" id="contrast" min="1" max="100" value="50" step="1">
+                <span id="contrastValue">50</span>
+            </div>
+            <div class="info">
+                <h3>艾里斑特征</h3>
+                <p>第一暗环半径: <span id="firstDarkRing">0</span> μm</p>
+                <p>中心峰强度: 100%</p>
+                <p>第一亮环强度: ~1.75%</p>
+                <p>第二亮环强度: ~0.42%</p>
+            </div>
+        </div>
+        <canvas id="airyPattern" width="600" height="600"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('airyPattern');
+        const ctx = canvas.getContext('2d');
+        
+        const controls = {
+            apertureSize: document.getElementById('apertureSize'),
+            wavelength: document.getElementById('wavelength'),
+            contrast: document.getElementById('contrast')
+        };
+
+        function updateValue(id, value) {
+            document.getElementById(id + 'Value').textContent = value;
+        }
+
+        function besselJ1(x) {
+            if (Math.abs(x) < 1e-10) return 0.5;
+            return Math.sin(x)/x;
+        }
+
+        function calculateAiryPattern() {
+            const width = canvas.width;
+            const height = canvas.height;
+            const imageData = ctx.createImageData(width, height);
+            
+            const a = controls.apertureSize.value * 1e-6; // 孔径半径(m)
+            const lambda = controls.wavelength.value * 1e-9; // 波长(m)
+            const contrast = controls.contrast.value / 50;
+            
+            const center = width / 2;
+            const scale = 2e4; // 缩放因子
+
+            // 计算第一暗环半径
+            const firstDarkRadius = 1.22 * lambda / (2 * a);
+            document.getElementById('firstDarkRing').textContent = 
+                (firstDarkRadius * 1e6).toFixed(2);
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const dx = (x - center) / scale;
+                    const dy = (y - center) / scale;
+                    const r = Math.sqrt(dx * dx + dy * dy);
+                    
+                    // 计算艾里函数
+                    const k = 2 * Math.PI / lambda;
+                    const u = k * a * r;
+                    let intensity = u === 0 ? 1 : Math.pow(2 * besselJ1(u) / u, 2);
+                    
+                    // 应用对比度
+                    intensity = Math.pow(intensity, 1/contrast);
+
+                    const index = (y * width + x) * 4;
+                    const value = Math.min(255, Math.floor(intensity * 255));
+                    imageData.data[index] = value;     // R
+                    imageData.data[index + 1] = value; // G
+                    imageData.data[index + 2] = value; // B
+                    imageData.data[index + 3] = 255;   // A
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+            drawAxes();
+        }
+
+        function drawAxes() {
+            const width = canvas.width;
+            const height = canvas.height;
+            const center = width / 2;
+
+            ctx.beginPath();
+            ctx.strokeStyle = 'red';
+            ctx.lineWidth = 1;
+
+            // 绘制十字准线
+            ctx.moveTo(0, center);
+            ctx.lineTo(width, center);
+            ctx.moveTo(center, 0);
+            ctx.lineTo(center, height);
+
+            // 刻度
+            for (let i = -5; i <= 5; i++) {
+                if (i === 0) continue;
+                const pos = center + i * width/10;
+                ctx.moveTo(pos, center - 5);
+                ctx.lineTo(pos, center + 5);
+                ctx.moveTo(center - 5, pos);
+                ctx.lineTo(center + 5, pos);
+            }
+
+            ctx.stroke();
+
+            // 刻度标签
+            ctx.font = '12px Arial';
+            ctx.fillStyle = 'red';
+            ctx.textAlign = 'center';
+            
+            for (let i = -5; i <= 5; i++) {
+                if (i === 0) continue;
+                const value = i * 2;
+                const pos = center + i * width/10;
+                ctx.fillText(value.toString() + 'μm', pos, center + 20);
+                ctx.fillText(value.toString() + 'μm', center - 25, pos);
+            }
+        }
+
+        // 事件监听器
+        Object.keys(controls).forEach(key => {
+            controls[key].addEventListener('input', function() {
+                updateValue(key, this.value);
+                calculateAiryPattern();
+            });
+        });
+
+        // 初始绘制
+        calculateAiryPattern();
+    </script>
+</body>
+</html>
