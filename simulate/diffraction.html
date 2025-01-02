@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>菲涅尔衍射模拟</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+    }
+    .controls {
+      margin-bottom: 10px;
+    }
+    .controls label {
+      margin-right: 20px;
+    }
+    #canvas {
+      border: 1px solid #ccc;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>一维菲涅尔衍射模拟</h1>
+
+  <div class="controls">
+    <label>
+      波长 λ (m):
+      <input type="number" step="1e-9" id="wavelength" value="5e-7">
+    </label>
+    <label>
+      观察屏距离 z (m):
+      <input type="number" step="0.1" id="distance" value="1">
+    </label>
+    <label>
+      光栅狭缝数量:
+      <input type="number" id="slitCount" value="5">
+    </label>
+    <label>
+      光栅间距 d (m):
+      <input type="number" step="1e-4" id="slitSpacing" value="0.0002">
+    </label>
+    <label>
+      单个狭缝宽度 a (m):
+      <input type="number" step="1e-5" id="slitWidth" value="0.00008">
+    </label>
+    <button id="simulateBtn">开始模拟</button>
+  </div>
+
+  <canvas id="canvas" width="800" height="400"></canvas>
+
+  <script>
+    /*
+      一维菲涅尔衍射原理简述（多狭缝示例）:
+      假设入射在 z=0 处的透过口（狭缝阵列）为 A(x')，则在 z>0 处, x 位置处的场可由菲涅尔积分给出：
+         U(x,z) ~ exp(i k z) * exp(i k x^2 / 2z) / (i λ z)
+                  ∫ [ A(x') * exp(i k x'^2 / 2z) * exp(-i k x x' / z ) ] dx'
+      我们用数值方法对 x' 做离散积分，即将 x' 分成很多小段求和。
+      最终衍射图样的强度分布与 |U(x,z)|² 成正比。
+    */
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const simulateBtn = document.getElementById('simulateBtn');
+    simulateBtn.addEventListener('click', simulateDiffraction);
+
+    function simulateDiffraction() {
+      // 读取用户输入参数
+      const wavelength = parseFloat(document.getElementById('wavelength').value);
+      const distance   = parseFloat(document.getElementById('distance').value);
+      const slitCount  = parseInt(document.getElementById('slitCount').value);
+      const slitSpacing= parseFloat(document.getElementById('slitSpacing').value);
+      const slitWidth  = parseFloat(document.getElementById('slitWidth').value);
+
+      // 其他常量
+      const c = 3e8;          // 光速（如果需要，可以用来计算频率等）
+      const k = 2 * Math.PI / wavelength;  // 波数 k = 2π / λ
+
+      // 为了演示，这里只做一维横向 x 方向的积分与观测
+      // 设置模拟范围（观测面上 x 的范围）
+      // 可以根据衍射角期望范围进行适当调整
+      const xMin = -0.01;   // 观察平面最左(米)
+      const xMax =  0.01;   // 观察平面最右(米)
+      const numX = 800;     // 观察平面采样点数（对应画布像素宽度）
+
+      // 在狭缝平面上的采样，为了数值积分
+      // 让总宽度覆盖多缝结构外加一定边界
+      const apertureWidth = slitCount * slitSpacing + 2 * slitSpacing; 
+      const xPrimeMin = -apertureWidth / 2;
+      const xPrimeMax =  apertureWidth / 2;
+      const numXPrime = 2000; // 通常为了数值效果更好，采样点要比观察平面更密集一些
+      const dxPrime = (xPrimeMax - xPrimeMin) / numXPrime;
+
+      // 计算狭缝函数 A(x')。这里约定狭缝中心沿着光轴对称排布
+      // A(x') = 1 表示该 x' 位置能透射，0 表示阻挡
+      // 多狭缝：中心间距 d, 单缝宽度 a, 数量 N
+      // 第 i 个狭缝中心大约在 x' = (i - (N-1)/2)*d
+      const apertureArray = new Float64Array(numXPrime);
+      for (let i = 0; i < numXPrime; i++) {
+        const xPrime = xPrimeMin + i * dxPrime;
+        apertureArray[i] = 0; // 先默认阻挡
+
+        // 判断是否落在任意一个狭缝范围内
+        for (let n = 0; n < slitCount; n++) {
+          const center = (n - (slitCount - 1) / 2) * slitSpacing;
+          const left   = center - slitWidth / 2;
+          const right  = center + slitWidth / 2;
+          if (xPrime >= left && xPrime <= right) {
+            apertureArray[i] = 1;
+            break;
+          }
+        }
+      }
+
+      // 进行菲涅尔积分的数值计算
+      // U(x) ≈ ∑ A(x') * exp[i * k/2z * x'^2] * exp[-i * k/z * x x'] dx'
+      // 后面乘上共同相位与常数因子只会影响整体相位和幅度标度，这里为了简化，忽略 1/(i λ z) 等因子
+      // 仅计算“相对”场强分布
+      const intensity = new Float64Array(numX);
+
+      // 先把与 x' 相关的相位项预先算好，避免重复计算
+      const phaseFactorXPrime = new Float64Array(numXPrime);
+      for (let i = 0; i < numXPrime; i++) {
+        const xPrime = xPrimeMin + i * dxPrime;
+        phaseFactorXPrime[i] = k * xPrime * xPrime / (2 * distance);
+      }
+
+      for (let ix = 0; ix < numX; ix++) {
+        const x = xMin + (xMax - xMin) * ix / (numX - 1);
+        // 计算 E(x)
+        let re = 0.0; // 实部
+        let im = 0.0; // 虚部
+        for (let iPrime = 0; iPrime < numXPrime; iPrime++) {
+          if (apertureArray[iPrime] === 0) continue; // 没有透射就不贡献
+
+          const xPrime = xPrimeMin + iPrime * dxPrime;
+
+          // 计算相位
+          // totalPhase = k/2z * x'^2 - k/z * x*x'
+          // 先用预存的相位 = s1, 再加上 s2 = -k*x*x'/z
+          const s1 = phaseFactorXPrime[iPrime];
+          const s2 = - (k * x * xPrime) / distance;
+          const phase = s1 + s2;
+
+          re += Math.cos(phase);
+          im += Math.sin(phase);
+        }
+        // 累加完之后，计算强度 = |E(x)|^2
+        // 乘上 dxPrime 模拟积分
+        re *= dxPrime;
+        im *= dxPrime;
+        intensity[ix] = re * re + im * im;
+      }
+
+      // 归一化便于显示
+      const maxI = Math.max(...intensity);
+      for (let ix = 0; ix < numX; ix++) {
+        intensity[ix] /= maxI;
+      }
+
+      // 在 canvas 上绘图，黑色背景+单通道显示强度（或彩色映射）
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // 绘制强度分布线：从下往上画
+      ctx.beginPath();
+      ctx.moveTo(0, canvas.height);
+      for (let ix = 0; ix < numX; ix++) {
+        const y = intensity[ix] * canvas.height;
+        ctx.lineTo(ix, canvas.height - y);
+      }
+      ctx.strokeStyle = "blue";
+      ctx.stroke();
+
+      // 在画布上标注一下
+      ctx.fillStyle = "black";
+      ctx.font = "14px sans-serif";
+      ctx.fillText("衍射强度分布 (仅一维横截面)", 10, 20);
+    }
+  </script>
+</body>
+</html>
